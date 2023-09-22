@@ -8,9 +8,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - run: sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
-    - uses: actions/setup-go@v4
+    - name: Perform Checkout
+      uses: actions/checkout@v4
+
+    - name: Get Golang Version from go.mod file
+      run: sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
+
+    - name: Setup Go Enviroment
+      uses: actions/setup-go@v4
       with:
         go-version: '${{ env.GO_VERSION }}' # The Go version to download (if necessary) and use.
+        
     - run: go version
