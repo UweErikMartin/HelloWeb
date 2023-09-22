@@ -7,7 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
 COPY . .
-RUN go build -v -o /usr/local/bin/helloweb ./...
+RUN go build -o /helloweb ./...
 
 # Run the tests in the container
 # FROM build-stage AS run-test-stage
@@ -16,7 +16,7 @@ RUN go build -v -o /usr/local/bin/helloweb ./...
 # Deploy the application binary into a lean image
 FROM alpine:3.14 AS build-release-stage
 
-COPY --from=build-stage /usr/local/bin/helloweb /helloweb
+COPY --from=build-stage /helloweb /helloweb
 
 # create a non-root user without home directory
 RUN addgroup -g 1000 nonroot
