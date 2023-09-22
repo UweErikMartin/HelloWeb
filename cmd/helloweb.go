@@ -12,6 +12,7 @@ func main() {
 	mux.HandleFunc("/", helloWeb)
 
 	klog.Infoln("Start to listen on port 80")
+	defer klog.Flush()
 	err := http.ListenAndServe(":80", mux)
 	if err != nil {
 		klog.Errorln(err)
