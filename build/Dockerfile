@@ -4,11 +4,11 @@ FROM golang:1.21 AS build-stage
 WORKDIR /app
 
 COPY go.mod ./
+
 # RUN go mod download
+ADD cmd ./
 
-COPY *.go ./
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o /HelloWeb
+RUN CGO_ENABLED=0 GOOS=linux go build -o /helloweb cmd/helloweb.go
 
 # Run the tests in the container
 # FROM build-stage AS run-test-stage
@@ -19,7 +19,7 @@ FROM alpine:3.14 AS build-release-stage
 
 WORKDIR /
 
-COPY --from=build-stage /HelloWeb /HelloWeb
+COPY --from=build-stage /helloweb /helloweb
 
 EXPOSE 8080
 
@@ -28,4 +28,4 @@ RUN addgroup -g 1000 nonroot
 RUN adduser -u 1000 -G nonroot -H -D nonroot
 USER nonroot:nonroot
 
-ENTRYPOINT ["/HelloWeb"]
+ENTRYPOINT ["/helloweb"]
