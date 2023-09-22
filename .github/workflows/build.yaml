@@ -29,7 +29,7 @@ jobs:
 
     - name: Build Container Image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:amd64 .        
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:amd64 build/Dockerfile        
     
     - name: Push to registry
       run: |
