@@ -1,12 +1,11 @@
 # Build the application from source
 FROM golang:1.21 AS build-stage
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY go.mod ./
-COPY *.go ./
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o /helloweb
+COPY . .
+RUN go build -v -o /usr/local/bin/helloweb ./...
 
 # Run the tests in the container
 # FROM build-stage AS run-test-stage
@@ -15,11 +14,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /helloweb
 # Deploy the application binary into a lean image
 FROM alpine:3.14 AS build-release-stage
 
-WORKDIR /
-
-COPY --from=build-stage /helloweb /helloweb
-
-EXPOSE 8080
+COPY --from=build-stage /usr/local/bin/helloweb /helloweb
 
 # create a non-root user without home directory
 RUN addgroup -g 1000 nonroot
