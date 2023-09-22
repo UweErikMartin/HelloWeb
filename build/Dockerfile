@@ -4,11 +4,9 @@ FROM golang:1.21 AS build-stage
 WORKDIR /app
 
 COPY go.mod ./
+COPY *.go ./
 
-# RUN go mod download
-ADD cmd ./
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o /helloweb cmd/helloweb.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /helloweb
 
 # Run the tests in the container
 # FROM build-stage AS run-test-stage
