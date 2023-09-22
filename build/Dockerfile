@@ -12,6 +12,7 @@ RUN go build -o /helloweb ./...
 # Run the tests in the container
 # FROM build-stage AS run-test-stage
 # RUN go test -v ./...
+RUN /helloweb
 
 # Deploy the application binary into a lean image
 FROM alpine:3.14 AS build-release-stage
@@ -23,4 +24,4 @@ RUN addgroup -g 1000 nonroot
 RUN adduser -u 1000 -G nonroot -H -D nonroot
 USER nonroot:nonroot
 
-ENTRYPOINT ["/helloweb"]
+CMD ["/helloweb"]
