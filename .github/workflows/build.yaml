@@ -1,5 +1,5 @@
 name: build
-run-name: build ${{gitea.repository}} by ${{gitea.actor}}
+run-name: build ${{github.repository}} by ${{github.actor}}
 on: [push, pull_request]
 
 jobs: 
