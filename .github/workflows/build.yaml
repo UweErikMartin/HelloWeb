@@ -33,6 +33,10 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Container Image
+    - name: Build and push Container Image linux/amd64
       run: |
         docker buildx build --push --platform=linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:amd64 -f build/Dockerfile .
+
+    - name: Build and push Container Image linux/arm64
+      run: |
+        docker buildx build --push --platform=linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:arm64 -f build/Dockerfile .        
