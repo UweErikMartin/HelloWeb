@@ -28,16 +28,20 @@ FROM alpine:3.14 AS build-release-stage
 
 # copy just the binary into the deployment image
 COPY --from=build-stage /usr/local/bin/helloweb /helloweb
+
 # Allow network access to the application. Without 
 # it, the container will not run in the strict environment
 # of kubernetes
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /helloweb
+
 # create a non-root user without home directory. We
 # don't want to run our container with root privileges
 RUN addgroup -g 1000 nonroot
 RUN adduser -u 1000 -G nonroot -H -D nonroot
+
 # run the container with the new user
 USER nonroot:nonroot
+
 # Entrypoint
 ENTRYPOINT ["/helloweb"]
