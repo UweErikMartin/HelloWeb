@@ -1,11 +1,19 @@
-# Build the application from source
+# Build the application from source.
+# use the official golang docker image
+# to compile the source code
 FROM golang:1.21 AS build-stage
 
+# How to use?
+# see description in https://hub.docker.com/_/golang
 WORKDIR /usr/src/app
 
+# copy the dependency files and download dependencies
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
+# copy the rest of the source code
+# and compile for linux. Put the result
+# into the /usr/local/bin standard directory
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/local/bin/helloweb ./...
 
@@ -14,15 +22,22 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/local/bin/helloweb ./...
 # RUN go test -v ./...
 
 # Deploy the application binary into a lean image
+# based on alpine. We don't want to ship the golang
+# environment
 FROM alpine:3.14 AS build-release-stage
 
+# copy just the binary into the deployment image
 COPY --from=build-stage /usr/local/bin/helloweb /helloweb
-# Allow non-root users network access
+# Allow network access to the application. Without 
+# it, the container will not run in the strict environment
+# of kubernetes
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /helloweb
-# create a non-root user without home directory
+# create a non-root user without home directory. We
+# don't want to run our container with root privileges
 RUN addgroup -g 1000 nonroot
 RUN adduser -u 1000 -G nonroot -H -D nonroot
+# run the container with the new user
 USER nonroot:nonroot
-# Entrypoing
+# Entrypoint
 ENTRYPOINT ["/helloweb"]
