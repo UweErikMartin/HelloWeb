@@ -22,6 +22,7 @@ RUN addgroup -g 1000 nonroot
 RUN adduser -u 1000 -G nonroot -H -D nonroot
 USER nonroot:nonroot
 # Allow non-root users network access
+RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /helloweb
 # Entrypoing
 ENTRYPOINT ["/helloweb"]
