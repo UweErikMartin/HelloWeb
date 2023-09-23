@@ -17,10 +17,11 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/local/bin/helloweb ./...
 FROM alpine:3.14 AS build-release-stage
 
 COPY --from=build-stage /usr/local/bin/helloweb /helloweb
-
 # create a non-root user without home directory
 RUN addgroup -g 1000 nonroot
 RUN adduser -u 1000 -G nonroot -H -D nonroot
 USER nonroot:nonroot
-
+# Allow non-root users network access
+RUN setcap CAP_NET_BIND_SERVICE=+eip /helloweb
+# Entrypoing
 ENTRYPOINT ["/helloweb"]
