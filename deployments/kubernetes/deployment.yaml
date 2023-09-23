@@ -17,5 +17,12 @@ spec:
       containers:
       - name: helloweb
         image: uweerikmartin/helloweb:latest
+        resources:
+          requests:
+            memory: "16Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
         ports:
         - containerPort: 80
