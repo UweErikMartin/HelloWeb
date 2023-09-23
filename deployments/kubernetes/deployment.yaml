@@ -3,12 +3,12 @@ kind: Deployment
 metadata:
   name: helloweb
   labels:
-    app: helloweb
+    app.kubernetes.io/name: helloweb
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: helloweb
+      app.kubernetes.io/name: helloweb
   template:
     metadata:
       labels:
