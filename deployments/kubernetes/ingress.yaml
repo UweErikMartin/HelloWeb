@@ -8,7 +8,7 @@ metadata:
 spec:
   ingressClassName: "nginx"
   rules:
-  - host: kubernetes.umartin.de
+  - host: helloweb.umartin.de
     http:
       paths:
       - path: /
