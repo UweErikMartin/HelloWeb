@@ -12,7 +12,7 @@ spec:
   template:
     metadata:
       labels:
-        app: helloweb
+        app.kubernetes.io/name: helloweb
     spec:
       containers:
       - name: helloweb
