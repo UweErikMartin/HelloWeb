@@ -1,7 +1,11 @@
+# Get the golang version passed from the caller as it is derived
+# out of the go,mod file in the repository. The default is 
+# golang version 1.21
+ARG GO_VERSION=1.21
 # Build the application from source.
 # use the official golang docker image
 # to compile the source code
-FROM golang:1.21 AS build-stage
+FROM golang:${GO_VERSION} AS build-stage
 
 # How to use?
 # see description in https://hub.docker.com/_/golang

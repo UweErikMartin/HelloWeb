@@ -38,4 +38,4 @@ jobs:
 
     - name: Build and push Multiarch Container Image [ ${{ env.PLATFORMS }} ]
       run: |
-        docker buildx build --push --platform=${{ env.PLATFORMS }} -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:latest -f build/Dockerfile .
+        docker buildx build --push --build-arg='GO_VERSION=${{env.GO_VERSION}}' --platform=${{ env.PLATFORMS }} -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:latest -f build/Dockerfile .
