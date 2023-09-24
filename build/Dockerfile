@@ -2,6 +2,7 @@
 # out of the go,mod file in the repository. The default is 
 # golang version 1.21
 ARG GO_VERSION=1.21
+
 # Build the application from source.
 # use the official golang docker image
 # to compile the source code

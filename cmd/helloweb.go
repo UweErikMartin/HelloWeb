@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 
@@ -8,15 +9,27 @@ import (
 )
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", helloWeb)
+	var appConfig applicationConfig
 
-	klog.Infoln("Start to listen on port 80")
+	flag.IntVar(&appConfig.port, "port", 4000, "health endpoint port")
+
+	flag.Parse()
+
+	finish := make(chan bool)
+
+	healthEndPoint := http.NewServeMux()
+	healthEndPoint.HandleFunc("/", helloWeb)
+
 	defer klog.Flush()
-	err := http.ListenAndServe(":80", mux)
-	if err != nil {
-		klog.Errorln(err)
-	}
+
+	addr := fmt.Sprintf(":%d", appConfig.port)
+
+	go func() {
+		klog.Infof("Start to listen on port %d\n", appConfig.port)
+		klog.Fatal(http.ListenAndServe(addr, healthEndPoint))
+	}()
+
+	<-finish
 }
 
 func helloWeb(w http.ResponseWriter, r *http.Request) {
