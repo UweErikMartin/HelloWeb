@@ -20,6 +20,8 @@ spec:
         env:
         - name: HELLOWEB_HEALTH_PORT
           value: "4000"
+        - name: HELLOWEB_HEALTH_PATH
+          value: "/health"
         resources:
           requests:
             memory: "16Mi"
@@ -31,7 +33,7 @@ spec:
         - containerPort: 4000
         livenessProbe:
           httpGet:
-            path: /
+            path: /health
             port: 4000
           initialDelaySeconds: 3
           periodSeconds: 10
