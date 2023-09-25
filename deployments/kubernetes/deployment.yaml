@@ -17,6 +17,9 @@ spec:
       containers:
       - name: helloweb
         image: uweerikmartin/helloweb:latest
+        env:
+        - name: HELLOWEB_HEALTH_PORT
+          value: "4000"
         resources:
           requests:
             memory: "16Mi"
@@ -25,4 +28,10 @@ spec:
             memory: "256Mi"
             cpu: "500m"
         ports:
-        - containerPort: 80
+        - containerPort: 4000
+        livenetssProbe:
+          httpGet:
+            path: /
+            port: 4000
+          initialDelaySeconds: 3
+          periodSeconds: 10
