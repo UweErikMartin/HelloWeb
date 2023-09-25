@@ -17,11 +17,6 @@ spec:
       containers:
       - name: helloweb
         image: uweerikmartin/helloweb:latest
-        env:
-        - name: HELLOWEB_HEALTH_PORT
-          value: "4000"
-        - name: HELLOWEB_HEALTH_PATH
-          value: "/health"
         resources:
           requests:
             memory: "16Mi"

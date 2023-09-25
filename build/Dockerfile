@@ -20,7 +20,7 @@ RUN go mod download && go mod verify
 # and compile for linux. Put the result
 # into the /usr/local/bin standard directory
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/local/bin/helloweb ./...
+RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/local/bin/server ./...
 
 # Run the tests in the container
 # FROM build-stage AS run-test-stage
@@ -32,13 +32,13 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/local/bin/helloweb ./...
 FROM alpine:3.14 AS build-release-stage
 
 # copy just the binary into the deployment image
-COPY --from=build-stage /usr/local/bin/helloweb /helloweb
+COPY --from=build-stage /usr/local/bin/server /server
 
 # Allow network access to the application. Without 
 # it, the container will not run in the strict environment
 # of kubernetes
 RUN apk add libcap
-RUN setcap CAP_NET_BIND_SERVICE=+eip /helloweb
+RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 
 # create a non-root user without home directory. We
 # don't want to run our container with root privileges
@@ -49,4 +49,4 @@ RUN adduser -u 1000 -G nonroot -H -D nonroot
 USER nonroot:nonroot
 
 # Entrypoint
-ENTRYPOINT ["/helloweb"]
+ENTRYPOINT ["/server"]

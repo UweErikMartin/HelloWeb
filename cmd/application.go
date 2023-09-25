@@ -1,6 +1,6 @@
 package main
 
 type applicationConfig struct {
-	healthPort int
-	healthPath string
+	healthEndpointPort int
+	healthEndpointPath string
 }

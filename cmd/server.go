@@ -11,26 +11,29 @@ import (
 )
 
 var (
-	applicationFlags = flag.NewFlagSet("helloweb", flag.ExitOnError)
+	applicationFlags = flag.NewFlagSet("server", flag.ExitOnError)
 )
 
 func main() {
 	var appConfig applicationConfig
 
-	applicationFlags.IntVar(&appConfig.healthPort, "health-port", 4000, "health endpoint port")
-	applicationFlags.StringVar(&appConfig.healthPath, "health-path", "/health", "health endpoint path")
+	// Read the commandline and environment variables into the application config
+	applicationFlags.IntVar(&appConfig.healthEndpointPort, "health-port", 4000, "health endpoint port")
+	applicationFlags.StringVar(&appConfig.healthEndpointPath, "health-path", "/health", "health endpoint path")
 	applicationFlags.Parse(os.Args[1:])
-	flagutil.SetFlagsFromEnv(applicationFlags, "helloweb")
+	flagutil.SetFlagsFromEnv(applicationFlags, "server")
 
 	defer klog.Flush()
 
+	// Start the listeners asynchronously
 	finish := make(chan bool)
 
+	// Start health endpoint
 	go func() {
-		addr := fmt.Sprintf(":%d", appConfig.healthPort)
+		addr := fmt.Sprintf(":%d", appConfig.healthEndpointPort)
 		healthEndPoint := http.NewServeMux()
-		healthEndPoint.HandleFunc(appConfig.healthPath, healthProbeHandler)
-		klog.Infof("Start serving health endpoint :%d%s\n", appConfig.healthPort, appConfig.healthPath)
+		healthEndPoint.HandleFunc(appConfig.healthEndpointPath, healthProbeHandler)
+		klog.Infof("Start serving health endpoint :%d%s\n", appConfig.healthEndpointPort, appConfig.healthEndpointPath)
 		klog.Fatal(http.ListenAndServe(addr, healthEndPoint))
 	}()
 
