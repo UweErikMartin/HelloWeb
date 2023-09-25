@@ -10,8 +10,6 @@ import (
 	"k8s.io/klog"
 )
 
-const EnvPrefix = "server"
-
 func main() {
 	var port int
 	var rootUrl string
@@ -21,7 +19,7 @@ func main() {
 	flags.IntVar(&port, "port", 80, "port the server is listening on")
 	flags.StringVar(&rootUrl, "root-url", "/", "root url the server is serving")
 	flags.Parse(os.Args[1:])
-	flagutil.SetFlagsFromEnv(flags, EnvPrefix)
+	flagutil.SetFlagsFromEnv(flags, "SERVER")
 
 	defer klog.Flush()
 
