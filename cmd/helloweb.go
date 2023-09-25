@@ -4,16 +4,22 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 
+	"github.com/coreos/pkg/flagutil"
 	"k8s.io/klog"
+)
+
+var (
+	applicationFlags = flag.NewFlagSet("helloweb", flag.ExitOnError)
 )
 
 func main() {
 	var appConfig applicationConfig
 
-	flag.IntVar(&appConfig.port, "port", 4000, "health endpoint port")
-
-	flag.Parse()
+	applicationFlags.IntVar(&appConfig.port, "health-port", 4000, "health endpoint port")
+	applicationFlags.Parse(os.Args[1:])
+	flagutil.SetFlagsFromEnv(applicationFlags, "helloweb")
 
 	finish := make(chan bool)
 
