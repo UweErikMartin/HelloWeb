@@ -45,5 +45,6 @@ func healthProbeHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		klog.Errorln(err)
 	}
+	klog.Infof("serving health for %s\n", r.RemoteAddr)
 	fmt.Fprint(w, "Hello Web from "+hn+"!")
 }
