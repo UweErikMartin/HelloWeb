@@ -29,7 +29,7 @@ spec:
             cpu: "500m"
         ports:
         - containerPort: 4000
-        livenetssProbe:
+        livenessProbe:
           httpGet:
             path: /
             port: 4000
