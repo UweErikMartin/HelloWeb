@@ -21,7 +21,7 @@ spec:
         - name: SERVER_PORT
           value: "4000"
         - name: SERVER_ROOT_URL
-          value: "tom"
+          value: "/tom"
         resources:
           requests:
             memory: "16Mi"
@@ -33,7 +33,7 @@ spec:
         - containerPort: 4000
         livenessProbe:
           httpGet:
-            path: /health
+            path: /tom/health
             port: 4000
           initialDelaySeconds: 3
           periodSeconds: 10
@@ -61,7 +61,7 @@ spec:
         - name: SERVER_PORT
           value: "4000"
         - name: SERVER_ROOT_URL
-          value: "jerry"
+          value: "/jerry"
         resources:
           requests:
             memory: "16Mi"
@@ -73,7 +73,7 @@ spec:
         - containerPort: 4000
         livenessProbe:
           httpGet:
-            path: /health
+            path: /jerry/health
             port: 4000
           initialDelaySeconds: 3
           periodSeconds: 10
