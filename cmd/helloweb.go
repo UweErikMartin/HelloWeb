@@ -30,7 +30,7 @@ func main() {
 		addr := fmt.Sprintf(":%d", appConfig.healthPort)
 		healthEndPoint := http.NewServeMux()
 		healthEndPoint.HandleFunc(appConfig.healthPath, healthProbeHandler)
-		klog.Infof("Start to listen on port %d\n", appConfig.healthPort)
+		klog.Infof("Start serving health endpoint :%d%s\n", appConfig.healthPort, appConfig.healthPath)
 		klog.Fatal(http.ListenAndServe(addr, healthEndPoint))
 	}()
 
