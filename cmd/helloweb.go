@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/coreos/pkg/flagutil"
 	"k8s.io/klog"
@@ -12,6 +13,7 @@ import (
 
 var (
 	applicationFlags = flag.NewFlagSet("helloweb", flag.ExitOnError)
+	started          = time.Now()
 )
 
 func main() {
@@ -39,5 +41,12 @@ func main() {
 }
 
 func helloWeb(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello Web!")
+	duration := time.Now().Sub(started)
+	if duration.Seconds() > 10 {
+		w.WriteHeader(500)
+		w.Write([]byte(fmt.Sprintf("error: %v", duration.Seconds())))
+	} else {
+		w.WriteHeader(200)
+		w.Write([]byte("ok"))
+	}
 }
