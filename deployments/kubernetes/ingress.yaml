@@ -11,10 +11,17 @@ spec:
   - host: helloweb.umartin.de
     http:
       paths:
-      - path: /
+      - path: /tom
         pathType: Prefix
         backend:
           service:
-            name: helloweb
+            name: tom
+            port:
+              number: 4000
+      - path: /jerry
+        pathType: Prefix
+        backend:
+          service:
+            name: jerry
             port:
               number: 4000

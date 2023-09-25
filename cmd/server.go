@@ -10,18 +10,18 @@ import (
 	"k8s.io/klog"
 )
 
-var (
-	applicationFlags = flag.NewFlagSet("server", flag.ExitOnError)
-)
+const EnvPrefix = "server"
 
 func main() {
-	var appConfig applicationConfig
+	var port int
+	var rootUrl string
 
 	// Read the commandline and environment variables into the application config
-	applicationFlags.IntVar(&appConfig.healthEndpointPort, "health-port", 4000, "health endpoint port")
-	applicationFlags.StringVar(&appConfig.healthEndpointPath, "health-path", "/health", "health endpoint path")
-	applicationFlags.Parse(os.Args[1:])
-	flagutil.SetFlagsFromEnv(applicationFlags, "server")
+	var flags = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	flags.IntVar(&port, "port", 80, "port the server is listening on")
+	flags.StringVar(&rootUrl, "root-url", "/", "root url the server is serving")
+	flags.Parse(os.Args[1:])
+	flagutil.SetFlagsFromEnv(flags, EnvPrefix)
 
 	defer klog.Flush()
 
@@ -30,10 +30,12 @@ func main() {
 
 	// Start health endpoint
 	go func() {
-		addr := fmt.Sprintf(":%d", appConfig.healthEndpointPort)
+		addr := fmt.Sprintf(":%d", port)
 		healthEndPoint := http.NewServeMux()
-		healthEndPoint.HandleFunc(appConfig.healthEndpointPath, healthProbeHandler)
-		klog.Infof("Start serving health endpoint :%d%s\n", appConfig.healthEndpointPort, appConfig.healthEndpointPath)
+
+		healthEndPoint.HandleFunc(rootUrl+"/health", healthProbeHandler)
+		klog.Infof("Listening on :%d%s\n", port, rootUrl)
+
 		klog.Fatal(http.ListenAndServe(addr, healthEndPoint))
 	}()
 
@@ -41,5 +43,9 @@ func main() {
 }
 
 func healthProbeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello Web!")
+	hn, err := os.Hostname()
+	if err != nil {
+		klog.Errorln(err)
+	}
+	fmt.Fprint(w, "Hello Web from "+hn+"!")
 }
