@@ -36,6 +36,7 @@ func main() {
 }
 
 func handleHealth(w http.ResponseWriter, r *http.Request) {
+	runtime.ReadMemStats(&memStats)
 	msg := fmt.Sprintf("MemoryAllocated: %d\n", memStats.TotalAlloc)
 	hn, _ := os.Hostname()
 	klog.Infof(msg)
