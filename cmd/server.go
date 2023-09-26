@@ -23,21 +23,14 @@ func main() {
 
 	defer klog.Flush()
 
-	// Start the listeners asynchronously
-	finish := make(chan bool)
-
 	// Start health endpoint
-	go func() {
-		addr := fmt.Sprintf(":%d", port)
-		healthEndPoint := http.NewServeMux()
+	addr := fmt.Sprintf(":%d", port)
+	healthEndPoint := http.NewServeMux()
 
-		healthEndPoint.HandleFunc(rootUrl+"/health", healthProbeHandler)
-		klog.Infof("Listening on :%d%s\n", port, rootUrl)
+	healthEndPoint.HandleFunc(rootUrl+"/health", healthProbeHandler)
+	klog.Infof("Listening on :%d%s\n", port, rootUrl)
 
-		klog.Fatal(http.ListenAndServe(addr, healthEndPoint))
-	}()
-
-	<-finish
+	klog.Fatal(http.ListenAndServe(addr, healthEndPoint))
 }
 
 func healthProbeHandler(w http.ResponseWriter, r *http.Request) {
