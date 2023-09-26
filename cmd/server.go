@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"runtime"
 
 	"github.com/coreos/pkg/flagutil"
 	"k8s.io/klog"
@@ -35,9 +36,14 @@ func main() {
 
 func healthProbeHandler(w http.ResponseWriter, r *http.Request) {
 	hn, err := os.Hostname()
+
 	if err != nil {
 		klog.Errorln(err)
 	}
-	klog.Infof("serving health for %s\n", r.RemoteAddr)
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	klog.Infof("serving health for %s - MemoryAllocated: %d\n", r.RemoteAddr, m.TotalAlloc)
 	fmt.Fprint(w, hn+" feels well!")
 }
