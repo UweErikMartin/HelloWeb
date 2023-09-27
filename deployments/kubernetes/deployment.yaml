@@ -18,7 +18,7 @@ spec:
       - name: tom
         image: uweerikmartin/helloweb:latest
         env:
-        - name: SERVER_PORT
+        - name: SERVER_HTTP_PORT
           value: "4000"
         - name: SERVER_PATH
           value: "/tom"
@@ -58,7 +58,7 @@ spec:
       - name: jerry
         image: uweerikmartin/helloweb:latest
         env:
-        - name: SERVER_PORT
+        - name: SERVER_HTTP_PORT
           value: "4000"
         - name: SERVER_PATH
           value: "/jerry"
