@@ -24,8 +24,8 @@ spec:
           value: "/tom"
         - name: SERVER_TLS_CERT
           value: /etc/certs/tls.crt
-#        - name: SERVER_TLS_KEY
-#          value: /etc/certs/tls.key
+        - name: SERVER_TLS_KEY
+          value: /etc/certs/tls.key
         resources:
           requests:
             memory: "16Mi"
