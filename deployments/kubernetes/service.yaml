@@ -6,9 +6,14 @@ spec:
   selector:
     app.kubernetes.io/name: tom
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 4000
       targetPort: 4000
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
 ---
 apiVersion: v1
 kind: Service
@@ -18,6 +23,11 @@ spec:
   selector:
     app.kubernetes.io/name: jerry
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: 4000
       targetPort: 4000
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
