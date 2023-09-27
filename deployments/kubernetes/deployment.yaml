@@ -75,6 +75,10 @@ spec:
           value: "4000"
         - name: SERVER_PATH
           value: "/jerry"
+        - name: SERVER_TLS_CERT
+          value: /etc/certs/tls.crt
+        - name: SERVER_TLS_KEY
+          value: /etc/certs/tls.key
         resources:
           requests:
             memory: "16Mi"
