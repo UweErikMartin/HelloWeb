@@ -4,9 +4,13 @@ metadata:
   name: helloweb
   annotations:
     kubernetes.io/ingress.class: "nginx"
-#    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/issuer: "letsencrypt-prod"
 spec:
   ingressClassName: "nginx"
+  tls:
+  - hosts:
+    - helloweb.umartin.de
+    secretName: helloweb-tls
   rules:
   - host: helloweb.umartin.de
     http:
