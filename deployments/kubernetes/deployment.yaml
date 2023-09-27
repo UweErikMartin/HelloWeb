@@ -31,12 +31,21 @@ spec:
             cpu: "500m"
         ports:
         - containerPort: 4000
+        volumeMounts:
+        - name: tls-certs
+          readOnly: true
+          mountPath: /etc/certs
         livenessProbe:
           httpGet:
             path: /tom/health
             port: 4000
           initialDelaySeconds: 3
           periodSeconds: 10
+# Mount the tls secret as volumes
+      volumes:
+      - name: tls-certs
+        secret:
+          secretName: helloweb-tls
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -71,9 +80,18 @@ spec:
             cpu: "500m"
         ports:
         - containerPort: 4000
+        volumeMounts:
+        - name: tls-certs
+          readOnly: true
+          mountPath: /etc/certs
         livenessProbe:
           httpGet:
             path: /jerry/health
             port: 4000
           initialDelaySeconds: 3
           periodSeconds: 10
+# Mount the tls secret as volumes
+      volumes:
+      - name: tls-certs
+        secret:
+          secretName: helloweb-tls
