@@ -20,7 +20,7 @@ spec:
         env:
         - name: SERVER_PORT
           value: "4000"
-        - name: SERVER_ROOT_URL
+        - name: SERVER_PATH
           value: "/tom"
         resources:
           requests:
@@ -60,7 +60,7 @@ spec:
         env:
         - name: SERVER_PORT
           value: "4000"
-        - name: SERVER_ROOT_URL
+        - name: SERVER_PATH
           value: "/jerry"
         resources:
           requests:
