@@ -20,7 +20,7 @@ RUN go mod download && go mod verify
 # and compile for linux. Put the result
 # into the /usr/local/bin standard directory
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/local/bin/server ./...
+RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/local/bin/server cmd/server.go
 
 # Run the tests in the container
 # FROM build-stage AS run-test-stage
@@ -29,7 +29,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/local/bin/server ./...
 # Deploy the application binary into a lean image
 # based on alpine. We don't want to ship the golang
 # environment
-FROM alpine:3.14 AS build-release-stage
+FROM alpine:latest AS build-release-stage
 
 # copy just the binary into the deployment image
 COPY --from=build-stage /usr/local/bin/server /server
