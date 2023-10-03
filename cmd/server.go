@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"time"
 
@@ -49,6 +50,11 @@ func main() {
 			klog.Infoln("Start listening on https port")
 			klog.Fatal(httpsSrv.ListenAndServeTLS("", ""))
 		}
+	}()
+
+	go func() {
+		klog.Infoln("Start profiling endpoint")
+		klog.Fatal(http.ListenAndServe(":8080", nil))
 	}()
 
 	// wait forever

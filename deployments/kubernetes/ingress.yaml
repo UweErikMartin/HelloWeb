@@ -30,3 +30,10 @@ spec:
             name: jerry
             port:
               number: 443
+      - path: /debug
+        pathType: Prefix
+        backend:
+          service:
+            name: tom
+            port: 
+              number: 8080
