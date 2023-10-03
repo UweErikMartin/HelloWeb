@@ -18,14 +18,12 @@ spec:
       - name: tom
         image: uweerikmartin/helloweb:latest
         env:
-        - name: SERVER_HTTP_PORT
+        - name: SERVER_INSECURE_PORT
           value: "4000"
-        - name: SERVER_PATH
-          value: "/tom"
-        - name: SERVER_TLS_CERT
-          value: /etc/certs/tls.crt
-        - name: SERVER_TLS_KEY
-          value: /etc/certs/tls.key
+        - name: SERVER_INSECURE_BIND_ADDRESS
+          value: "0.0.0.0"
+        - name: SERVER_ROOT_PATH
+          value: "/tom/"
         resources:
           requests:
             memory: "16Mi"
@@ -38,7 +36,7 @@ spec:
         volumeMounts:
         - name: tls-certs
           readOnly: true
-          mountPath: /etc/certs
+          mountPath: /certs
         livenessProbe:
           httpGet:
             path: /tom/health
@@ -71,14 +69,12 @@ spec:
       - name: jerry
         image: uweerikmartin/helloweb:latest
         env:
-        - name: SERVER_HTTP_PORT
+        - name: SERVER_INSECURE_PORT
           value: "4000"
-        - name: SERVER_PATH
-          value: "/jerry"
-        - name: SERVER_TLS_CERT
-          value: /etc/certs/tls.crt
-        - name: SERVER_TLS_KEY
-          value: /etc/certs/tls.key
+        - name: SERVER_INSECURE_BIND_ADDRESS
+          value: "0.0.0.0"
+        - name: SERVER_ROOT_PATH
+          value: "/jerry/"
         resources:
           requests:
             memory: "16Mi"
@@ -91,7 +87,7 @@ spec:
         volumeMounts:
         - name: tls-certs
           readOnly: true
-          mountPath: /etc/certs
+          mountPath: /certs
         livenessProbe:
           httpGet:
             path: /jerry/health

@@ -1,74 +1,56 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"net/http"
 	"os"
-	"runtime"
+	"time"
 
-	"github.com/coreos/pkg/flagutil"
+	app "github.com/UweErikMartin/HelloWeb/internal/app"
+
 	"k8s.io/klog"
 )
 
-var memStats runtime.MemStats
-
 func main() {
-	var intHttpPort int
-	var intHttpsPort int
-	var strPath string
-	var strHost string
-	var strTLSCert string
-	var strTLSKey string
 
-	// Read the commandline and environment variables into the application config
-	var flags = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	flags.IntVar(&intHttpPort, "http-port", 80, "http-port the server is listening on")
-	flags.IntVar(&intHttpsPort, "https-port", 443, "https-port the server is listening on")
-	flags.StringVar(&strPath, "path", "", "path the server is serving")
-	flags.StringVar(&strHost, "host", "", "host the server is serving")
-	flags.StringVar(&strTLSCert, "tls-cert", "", "certificate file location for the tls communication")
-	flags.StringVar(&strTLSKey, "tls-key", "", "public key for TLS communication")
-	flags.Parse(os.Args[1:])
-	flagutil.SetFlagsFromEnv(flags, "SERVER")
+	// Initialize the application and parse the commandline
+	// and environment variables
+	app := &app.Application{}
+	app.ParseCommandlineAndEnvironment(os.Args[1:])
 
-	strHttpAddr := fmt.Sprintf("%s:%d", strHost, intHttpPort)
-	strHttpsAddr := fmt.Sprintf("%s:%d", strHost, intHttpsPort)
-	strHandlerPath := fmt.Sprintf("%s/health", strPath)
-	runtime.ReadMemStats(&memStats)
+	finish := make(chan struct{})
 
-	http.HandleFunc(strHandlerPath, handleHealth)
-
-	// create the http and https server
-	httpServer := &http.Server{
-		Addr: strHttpAddr,
-	}
-
-	httpsServer := &http.Server{
-		Addr: strHttpsAddr,
-	}
-
-	finish := make(chan bool)
-
+	// start the http server
 	go func() {
-		klog.Infof("Listening on %s%s - MemoryAllocated: %d\n", strHttpAddr, strHandlerPath, memStats.TotalAlloc)
-		klog.Fatal(httpServer.ListenAndServe())
+		klog.Infoln("Start listening on http port")
+		// create the http Endpoint
+		httpSrv := &http.Server{
+			Addr:              app.GetInsecureAddrAsString(),
+			Handler:           app.Routes(),
+			ReadTimeout:       5 * time.Second,
+			ReadHeaderTimeout: 10 * time.Second,
+			WriteTimeout:      5 * time.Second,
+			IdleTimeout:       5 * time.Second,
+		}
+
+		klog.Fatal(httpSrv.ListenAndServe())
 	}()
 
 	go func() {
-		if strTLSCert != "" && strTLSKey != "" {
-			klog.Infof("Listening on %s%s - MemoryAllocated: %d\n", strHttpsAddr, strHandlerPath, memStats.TotalAlloc)
-			klog.Fatal(httpsServer.ListenAndServeTLS(strTLSCert, strTLSKey))
+		if tlsConfig := app.GetTLSConfig(); tlsConfig != nil {
+			httpsSrv := &http.Server{
+				Addr:              app.GetAddrAsSring(),
+				Handler:           app.Routes(),
+				TLSConfig:         app.GetTLSConfig(),
+				ReadTimeout:       5 * time.Second,
+				ReadHeaderTimeout: 10 * time.Second,
+				WriteTimeout:      5 * time.Second,
+				IdleTimeout:       5 * time.Second,
+			}
+			klog.Infoln("Start listening on https port")
+			klog.Fatal(httpsSrv.ListenAndServeTLS("", ""))
 		}
 	}()
 
+	// wait forever
 	<-finish
-}
-
-func handleHealth(w http.ResponseWriter, r *http.Request) {
-	runtime.ReadMemStats(&memStats)
-	msg := fmt.Sprintf("MemoryAllocated: %d\n", memStats.TotalAlloc)
-	hn, _ := os.Hostname()
-	klog.Infof(msg)
-	fmt.Fprintf(w, "%s feels well %s", hn, msg)
 }
