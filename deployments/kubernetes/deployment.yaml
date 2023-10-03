@@ -26,6 +26,8 @@ spec:
               fieldPath: status.podIP
         - name: SERVER_ROOT_PATH
           value: "/tom/"
+        - name: SERVER_PROFILING_PORT
+          value: "8080"
         resources:
           requests:
             memory: "16Mi"

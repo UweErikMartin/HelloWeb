@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -53,8 +54,11 @@ func main() {
 	}()
 
 	go func() {
-		klog.Infoln("Start profiling endpoint")
-		klog.Fatal(http.ListenAndServe(":8080", nil))
+		if port := app.GetProfilingPort(); port != 0 {
+			endpoint := fmt.Sprintf(":%d", port)
+			klog.Infof("Start profiling endpoint %s", endpoint)
+			klog.Fatal(http.ListenAndServe(endpoint, nil))
+		}
 	}()
 
 	// wait forever
