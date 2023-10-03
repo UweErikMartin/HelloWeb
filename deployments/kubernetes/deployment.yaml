@@ -23,7 +23,7 @@ spec:
         - name: SERVER_INSECURE_BIND_ADDRESS
           valueFrom:
             fieldRef:
-              fieldPath: status.PodIP
+              fieldPath: status.podIP
         - name: SERVER_ROOT_PATH
           value: "/tom/"
         resources:
@@ -76,7 +76,7 @@ spec:
         - name: SERVER_INSECURE_BIND_ADDRESS
           valueFrom:
             fieldRef:
-              fieldPath: status.PodIP
+              fieldPath: status.podIP
         - name: SERVER_ROOT_PATH
           value: "/jerry/"
         resources:
