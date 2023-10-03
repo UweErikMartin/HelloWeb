@@ -91,7 +91,7 @@ spec:
         volumeMounts:
         - name: tls-certs
           readOnly: true
-          mountPath: /etc/certs
+          mountPath: /certs
         livenessProbe:
           httpGet:
             path: /jerry/health
