@@ -22,7 +22,7 @@ func (app *Application) Routes() *http.ServeMux {
 
 	if app.args.argEnableProfiling {
 		// add the profile endpoints
-		path := fmt.Sprintf("/debug/pprof/", app.args.argRootPath)
+		path := "/debug/pprof/"
 		klog.Infof("Adding profiling Endpoint %s\n", path)
 		mux.HandleFunc(path, prof.Index)
 	}
