@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	_ "net/http/pprof"
 	"os"
 	"time"
 
@@ -50,14 +48,6 @@ func main() {
 			}
 			klog.Infoln("Start listening on https port")
 			klog.Fatal(httpsSrv.ListenAndServeTLS("", ""))
-		}
-	}()
-
-	go func() {
-		if port := app.GetProfilingPort(); port != 0 {
-			endpoint := fmt.Sprintf(":%d", port)
-			klog.Infof("Start profiling endpoint %s", endpoint)
-			klog.Fatal(http.ListenAndServe(endpoint, nil))
 		}
 	}()
 

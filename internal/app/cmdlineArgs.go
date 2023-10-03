@@ -17,7 +17,7 @@ type cmdlineArgs struct {
 	argCertDir             string
 	argTLSCertFile         string
 	argTLSKeyFile          string
-	argProfilingPort       int
+	argEnableProfiling     bool
 }
 
 func (app *Application) ParseCommandlineAndEnvironment(args []string) {
@@ -30,7 +30,7 @@ func (app *Application) ParseCommandlineAndEnvironment(args []string) {
 	flags.StringVar(&app.args.argCertDir, "default-cert-dir", "/certs", "Directory path containing --tls-cert-file and --tls-key-file files. Relative to the container, not the host.")
 	flags.StringVar(&app.args.argTLSCertFile, "tls-cert-file", "tls.crt", "File containing the default x509 Certificate for HTTPS.")
 	flags.StringVar(&app.args.argTLSKeyFile, "tls-key-file", "tls.key", "File containing the default x509 private key matching --tls-cert-file.")
-	flags.IntVar(&app.args.argProfilingPort, "profiling-port", 0, "enable profiling on http://localhost:PORT/debug endpoint, set 0 to disable profiling")
+	flags.BoolVar(&app.args.argEnableProfiling, "enable-profiling", false, "serve profiling on /debug endpoint.")
 
 	flags.Parse(args)
 	flagutil.SetFlagsFromEnv(flags, "SERVER")
@@ -42,8 +42,4 @@ func (app *Application) GetInsecureAddrAsString() string {
 
 func (app *Application) GetAddrAsSring() string {
 	return fmt.Sprintf("%s:%d", app.args.argBindAddress, app.args.argPort)
-}
-
-func (app *Application) GetProfilingPort() int {
-	return app.args.argProfilingPort
 }

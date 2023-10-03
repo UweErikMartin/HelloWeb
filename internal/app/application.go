@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	prof "net/http/pprof"
+
 	"k8s.io/klog"
 )
 
@@ -17,6 +19,13 @@ func (app *Application) Routes() *http.ServeMux {
 
 	path := fmt.Sprintf("%shealth", app.args.argRootPath)
 	mux.HandleFunc(path, app.Health)
+
+	if app.args.argEnableProfiling {
+		// add the profile endpoints
+		path := fmt.Sprintf("%sdebug/pprof/", app.args.argRootPath)
+		klog.Infof("Adding profiling Endpoint %s\n", path)
+		mux.HandleFunc(path, prof.Index)
+	}
 
 	return mux
 }
