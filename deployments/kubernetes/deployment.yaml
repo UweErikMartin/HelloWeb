@@ -20,8 +20,6 @@ spec:
         env:
         - name: SERVER_INSECURE_PORT
           value: "4000"
-        - name: SERVER_INSECURE_BIND_ADDRESS
-          value: "0.0.0.0"
         - name: SERVER_ROOT_PATH
           value: "/tom/"
         resources:
@@ -71,8 +69,6 @@ spec:
         env:
         - name: SERVER_INSECURE_PORT
           value: "4000"
-        - name: SERVER_INSECURE_BIND_ADDRESS
-          value: "0.0.0.0"
         - name: SERVER_ROOT_PATH
           value: "/jerry/"
         resources:
