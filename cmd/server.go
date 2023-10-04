@@ -21,18 +21,20 @@ func main() {
 
 	// start the http server
 	go func() {
-		klog.Infoln("Start listening on http port")
-		// create the http Endpoint
-		httpSrv := &http.Server{
-			Addr:              app.GetInsecureAddrAsString(),
-			Handler:           app.Routes(),
-			ReadTimeout:       5 * time.Second,
-			ReadHeaderTimeout: 10 * time.Second,
-			WriteTimeout:      5 * time.Second,
-			IdleTimeout:       5 * time.Second,
-		}
+		if app.AllowInsecureConnections() {
+			klog.Infoln("Start listening on http port")
+			// create the http Endpoint
+			httpSrv := &http.Server{
+				Addr:              app.GetInsecureAddrAsString(),
+				Handler:           app.Routes(),
+				ReadTimeout:       5 * time.Second,
+				ReadHeaderTimeout: 10 * time.Second,
+				WriteTimeout:      5 * time.Second,
+				IdleTimeout:       5 * time.Second,
+			}
 
-		klog.Fatal(httpSrv.ListenAndServe())
+			klog.Fatal(httpSrv.ListenAndServe())
+		}
 	}()
 
 	go func() {

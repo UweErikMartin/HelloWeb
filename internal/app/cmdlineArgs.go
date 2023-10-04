@@ -9,27 +9,31 @@ import (
 )
 
 type cmdlineArgs struct {
-	argInsecurePort        int
-	argInsecureBindAddress string
-	argPort                int
-	argBindAddress         string
-	argRootPath            string
-	argCertDir             string
-	argTLSCertFile         string
-	argTLSKeyFile          string
-	argEnableProfiling     bool
+	argInsecurePort             int
+	argInsecureBindAddress      string
+	argAllowInsecureConnections bool
+	argPort                     int
+	argBindAddress              string
+	argRootPath                 string
+	argCertDir                  string
+	argTLSCertFile              string
+	argTLSKeyFile               string
+	argMTLSCACertFile           string
+	argEnableProfiling          bool
 }
 
 func (app *Application) ParseCommandlineAndEnvironment(args []string) {
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flags.IntVar(&app.args.argInsecurePort, "insecure-port", 80, "port to listen to for HTTP requests.")
 	flags.StringVar(&app.args.argInsecureBindAddress, "insecure-bind-address", "127.0.0.1", "The IP address on which to serve the --insecure-port (set to 127.0.0.1 for loopback only).")
+	flags.BoolVar(&app.args.argAllowInsecureConnections, "allow-insecure-connections", false, "allow insecure HTTP requests for --insecure-port and --insecure-bind-address")
 	flags.IntVar(&app.args.argPort, "port", 443, "The secure port to listen to for incoming HTTPS requests.")
 	flags.StringVar(&app.args.argBindAddress, "bind-address", "0.0.0.0", "The IP address on which to serve the --port (set to 0.0.0.0 for all interfaces).")
 	flags.StringVar(&app.args.argRootPath, "root-path", "/", "The root path to serve.")
 	flags.StringVar(&app.args.argCertDir, "default-cert-dir", "/certs", "Directory path containing --tls-cert-file and --tls-key-file files. Relative to the container, not the host.")
 	flags.StringVar(&app.args.argTLSCertFile, "tls-cert-file", "tls.crt", "File containing the default x509 Certificate for HTTPS.")
 	flags.StringVar(&app.args.argTLSKeyFile, "tls-key-file", "tls.key", "File containing the default x509 private key matching --tls-cert-file.")
+	flags.StringVar(&app.args.argMTLSCACertFile, "mtls-cacert-file", "", "File containing the CA Certificate matching the --tls-key-file and --tls-cert-file. If provided the server switches to mTLS communication")
 	flags.BoolVar(&app.args.argEnableProfiling, "enable-profiling", false, "serve profiling on /debug endpoint.")
 
 	flags.Parse(args)
@@ -42,4 +46,8 @@ func (app *Application) GetInsecureAddrAsString() string {
 
 func (app *Application) GetAddrAsSring() string {
 	return fmt.Sprintf("%s:%d", app.args.argBindAddress, app.args.argPort)
+}
+
+func (app *Application) AllowInsecureConnections() bool {
+	return app.args.argAllowInsecureConnections
 }
