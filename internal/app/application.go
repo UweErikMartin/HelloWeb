@@ -19,14 +19,14 @@ type Application struct {
 func (app *Application) Routes() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	path := fmt.Sprintf("%shealth", app.args.argRootPath)
-	mux.HandleFunc(path, app.Health)
-
+	// add the health endpoint ROOT/health
+	mux.HandleFunc(fmt.Sprintf("%shealth", app.args.argRootPath), app.Health)
+	// add the memstats endpoint
+	mux.HandleFunc(fmt.Sprintf("%smemstats", app.args.argRootPath), app.MemStats)
+	// add the profiling endpoint /debug/pprof
 	if app.args.argEnableProfiling {
-		// add the profile endpoints
-		path := "/debug/pprof/"
-		klog.Infof("Adding profiling Endpoint %s\n", path)
-		mux.HandleFunc(path, prof.Index)
+		klog.Infoln("Adding profiling Endpoint /debug/pprof/")
+		mux.HandleFunc("/debug/pprof/", prof.Index)
 	}
 
 	return mux
