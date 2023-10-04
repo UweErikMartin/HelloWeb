@@ -17,12 +17,11 @@ func main() {
 	app := &app.Application{}
 	app.ParseCommandlineAndEnvironment(os.Args[1:])
 
-	finish := make(chan struct{})
+	finish := make(chan bool)
 
 	// start the http server
-	go func() {
-		if app.AllowInsecureConnections() {
-			klog.Infoln("Start listening on http port")
+	if app.AllowInsecureConnections() {
+		go func() {
 			// create the http Endpoint
 			httpSrv := &http.Server{
 				Addr:              app.GetInsecureAddrAsString(),
@@ -33,16 +32,19 @@ func main() {
 				IdleTimeout:       5 * time.Second,
 			}
 
+			klog.Infoln("Start listening on http port")
 			klog.Fatal(httpSrv.ListenAndServe())
-		}
-	}()
+		}()
+	} else {
+		klog.Infoln("HTTP is disabled")
+	}
 
-	go func() {
-		if tlsConfig := app.GetTLSConfig(); tlsConfig != nil {
+	if tlsConfig, err := app.GetTLSConfig(); err == nil {
+		go func() {
 			httpsSrv := &http.Server{
 				Addr:              app.GetAddrAsSring(),
 				Handler:           app.Routes(),
-				TLSConfig:         app.GetTLSConfig(),
+				TLSConfig:         tlsConfig,
 				ReadTimeout:       5 * time.Second,
 				ReadHeaderTimeout: 10 * time.Second,
 				WriteTimeout:      5 * time.Second,
@@ -50,9 +52,10 @@ func main() {
 			}
 			klog.Infoln("Start listening on https port")
 			klog.Fatal(httpsSrv.ListenAndServeTLS("", ""))
-		}
-	}()
-
+		}()
+	} else {
+		klog.Infoln("HTTPS is disabled")
+	}
 	// wait forever
 	<-finish
 }

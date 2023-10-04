@@ -9,24 +9,22 @@ import (
 )
 
 type cmdlineArgs struct {
-	argInsecurePort             int
-	argInsecureBindAddress      string
-	argAllowInsecureConnections bool
-	argPort                     int
-	argBindAddress              string
-	argRootPath                 string
-	argCertDir                  string
-	argTLSCertFile              string
-	argTLSKeyFile               string
-	argMTLSCACertFile           string
-	argEnableProfiling          bool
+	argInsecurePort        int
+	argInsecureBindAddress string
+	argPort                int
+	argBindAddress         string
+	argRootPath            string
+	argCertDir             string
+	argTLSCertFile         string
+	argTLSKeyFile          string
+	argMTLSCACertFile      string
+	argEnableProfiling     bool
 }
 
 func (app *Application) ParseCommandlineAndEnvironment(args []string) {
 	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	flags.IntVar(&app.args.argInsecurePort, "insecure-port", 80, "port to listen to for HTTP requests.")
+	flags.IntVar(&app.args.argInsecurePort, "insecure-port", 0, "port to listen to for HTTP requests. (set to \"0\" to disable insecure communication)")
 	flags.StringVar(&app.args.argInsecureBindAddress, "insecure-bind-address", "127.0.0.1", "The IP address on which to serve the --insecure-port (set to 127.0.0.1 for loopback only).")
-	flags.BoolVar(&app.args.argAllowInsecureConnections, "allow-insecure-connections", false, "allow insecure HTTP requests for --insecure-port and --insecure-bind-address")
 	flags.IntVar(&app.args.argPort, "port", 443, "The secure port to listen to for incoming HTTPS requests.")
 	flags.StringVar(&app.args.argBindAddress, "bind-address", "0.0.0.0", "The IP address on which to serve the --port (set to 0.0.0.0 for all interfaces).")
 	flags.StringVar(&app.args.argRootPath, "root-path", "/", "The root path to serve.")
@@ -49,5 +47,5 @@ func (app *Application) GetAddrAsSring() string {
 }
 
 func (app *Application) AllowInsecureConnections() bool {
-	return app.args.argAllowInsecureConnections
+	return app.args.argInsecurePort > 0 && app.args.argInsecurePort < 65536
 }

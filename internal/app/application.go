@@ -32,7 +32,7 @@ func (app *Application) Routes() *http.ServeMux {
 	return mux
 }
 
-func (app *Application) GetTLSConfig() *tls.Config {
+func (app *Application) GetTLSConfig() (*tls.Config, error) {
 	CertFilePath := fmt.Sprintf("%s/%s", app.args.argCertDir, app.args.argTLSCertFile)
 	KeyFilePath := fmt.Sprintf("%s/%s", app.args.argCertDir, app.args.argTLSKeyFile)
 	CAFilePath := fmt.Sprintf("%s/%s", app.args.argCertDir, app.args.argMTLSCACertFile)
@@ -40,18 +40,19 @@ func (app *Application) GetTLSConfig() *tls.Config {
 	serverTLSCert, err := tls.LoadX509KeyPair(CertFilePath, KeyFilePath)
 	if err != nil {
 		klog.Errorf("cannot load TLS Certificate files %s and %s\n", CertFilePath, KeyFilePath)
-		return nil
+		return nil, err
 	}
 
 	caCert, err := os.ReadFile(CAFilePath)
 
 	if err != nil {
-		klog.Errorf("cannot load mTLS Certificate Authority file %s\n", CAFilePath)
+		klog.Errorf("cannot load mTLS Certificate Authority file %s - using normal tls\n", CAFilePath)
 		tlsConfig := &tls.Config{
 			Certificates: []tls.Certificate{serverTLSCert},
 		}
-		return tlsConfig
+		return tlsConfig, nil
 	} else {
+		klog.Infof("loaded mTLS Certificate Authority file %s - using mTLS\n", CAFilePath)
 		caCertPool := x509.NewCertPool()
 		caCertPool.AppendCertsFromPEM(caCert)
 		tlsConfig := &tls.Config{
@@ -59,6 +60,6 @@ func (app *Application) GetTLSConfig() *tls.Config {
 			ClientCAs:    caCertPool,
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 		}
-		return tlsConfig
+		return tlsConfig, nil
 	}
 }
