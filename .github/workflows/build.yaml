@@ -69,4 +69,5 @@ jobs:
     - name: Build and push Windows Image [ windows ]
       run:
         docker build -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
+        docker push -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019
         
