@@ -28,10 +28,10 @@ COPY . .
 ENV CGO_ENABLED=0
 RUN go build cmd/server.go
 
-FROM mcr.microsoft.com/windows/nanoserver:ltsc2019 AS build-release-stage
+# FROM mcr.microsoft.com/windows/nanoserver:ltsc2019 AS build-release-stage
 
 # copy just the binary into the deployment image
-COPY --from=build-stage /usr/src/app/server.exe /server.exe
+# COPY --from=build-stage /usr/src/app/server.exe /server.exe
 
 # Entrypoint
-ENTRYPOINT ["/server.exe"]
+# ENTRYPOINT ["/server.exe"]

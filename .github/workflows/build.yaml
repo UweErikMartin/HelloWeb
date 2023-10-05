@@ -6,7 +6,8 @@ jobs:
   # The “build” workflow 
   build:
     env:
-      PLATFORMS: 'linux/amd64,linux/arm64,windows/amd64'
+      PLATFORMS: 'windows/amd64'
+#      PLATFORMS: 'linux/amd64,linux/arm64'
 
     runs-on: ubuntu-latest
 
@@ -38,4 +39,4 @@ jobs:
 
     - name: Build and push Multiarch Container Image [ ${{ env.PLATFORMS }} ]
       run: |
-        docker buildx build --push --build-arg='GO_VERSION=${{env.GO_VERSION}}' --platform=${{ env.PLATFORMS }} -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:latest -f build/Dockerfile .
+        docker buildx build --push --build-arg='GO_VERSION=${{env.GO_VERSION}}' --platform=${{ env.PLATFORMS }} -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:latest -f build/Dockerfile.windows .
