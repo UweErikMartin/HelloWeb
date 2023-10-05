@@ -62,9 +62,6 @@ jobs:
       run: |
         go build -o server.exe cmd/server.go
 
-#    - name: Set up Docker Buildx
-#      uses: docker/setup-buildx-action@v3      
-
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
@@ -74,9 +71,7 @@ jobs:
     - name: Build docker Image
       run: |
         docker build -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
-#    - name: Build and push docker Image
-#      uses: docker/build-push-action@v5
-#      with:
-#        push: true
-#        file: build/Dockerfile.windows
-#        tags: ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:ltsc2019
+
+    - name: Push docker Image
+      run: |
+        docker push ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019
