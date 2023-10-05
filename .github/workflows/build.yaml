@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs: 
   # The “build” workflow 
-  build:
+  build-linux:
     env:
       PLATFORMS: 'linux/amd64,linux/arm64'
 
@@ -14,15 +14,17 @@ jobs:
     - name: Perform Checkout
       uses: actions/checkout@v4
 
-    - name: Setup Go Enviroment
-      uses: actions/setup-go@v4
-      with:
-        go-version-file: go.mod
-    - run: go version
+    - name: Get Golang Version from go.mod file
+      run: sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
+#    - name: Setup Go Enviroment
+#      uses: actions/setup-go@v4
+#      with:
+#        go-version-file: go.mod
+#    - run: go version
 
-    - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server-linux-arm64 cmd/server.go
-    - run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o server-linux-arm64 cmd/server.go
-    - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o server-windows-amd64.exe cmd/server.go
+#    - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server-linux-arm64 cmd/server.go
+#    - run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o server-linux-arm64 cmd/server.go
+#    - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o server-windows-amd64.exe cmd/server.go
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -36,6 +38,6 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-#    - name: Build and push Multiarch Container Image [ ${{ env.PLATFORMS }} ]
-#      run: |
-#        docker buildx build --push --build-arg='GO_VERSION=${{env.GO_VERSION}}' --platform=${{ env.PLATFORMS }} -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:latest -f build/Dockerfile.multiarch .
+    - name: Build and push Multiarch Container Image [ ${{ env.PLATFORMS }} ]
+      run: |
+        docker buildx build --push --build-arg='GO_VERSION=${{env.GO_VERSION}}' --platform=${{ env.PLATFORMS }} -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:latest -f build/Dockerfile
