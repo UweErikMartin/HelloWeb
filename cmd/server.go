@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	app "github.com/UweErikMartin/HelloWeb/internal/app"
@@ -17,11 +18,12 @@ func main() {
 	app := &app.Application{}
 	app.ParseCommandlineAndEnvironment(os.Args[1:])
 
-	finish := make(chan bool)
+	wg := &sync.WaitGroup{}
 
 	// start the http server
 	if app.AllowInsecureConnections() {
-		go func() {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
 			// create the http Endpoint
 			httpSrv := &http.Server{
 				Addr:              app.GetInsecureAddrAsString(),
@@ -34,13 +36,15 @@ func main() {
 
 			klog.Infoln("Start listening on http port")
 			klog.Fatal(httpSrv.ListenAndServe())
-		}()
+			wg.Done()
+		}(wg)
 	} else {
 		klog.Infoln("HTTP is disabled")
 	}
 
 	if tlsConfig, err := app.GetTLSConfig(); err == nil {
-		go func() {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
 			httpsSrv := &http.Server{
 				Addr:              app.GetAddrAsSring(),
 				Handler:           app.Routes(),
@@ -52,10 +56,12 @@ func main() {
 			}
 			klog.Infoln("Start listening on https port")
 			klog.Fatal(httpsSrv.ListenAndServeTLS("", ""))
-		}()
+			wg.Done()
+		}(wg)
 	} else {
 		klog.Infoln("HTTPS is disabled")
 	}
-	// wait forever
-	<-finish
+
+	// wait until the goroutines complete
+	wg.Wait()
 }
