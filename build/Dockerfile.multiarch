@@ -3,7 +3,7 @@ ARG TARGETPLATFORM
 # FROM mcr.microsoft.com/windows/nanoserver:ltsc2019 
 FROM alpine:latest
 
-RUN echo $TARGETPLATFORM
+RUN echo ${TARGETPLATFORM}
 # copy just the binary into the deployment image
 # COPY server /server
 
