@@ -64,5 +64,9 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build and push Windows Image [ windows ]
-      run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:ltsc-2019 -f build/Dockerfile.windows .
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        file: build/Dockerfile.windows
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:ltsc-2019
