@@ -5,7 +5,7 @@ FROM alpine:latest
 
 RUN echo $TARGETPLATFORM
 # copy just the binary into the deployment image
-COPY server /server
+# COPY server /server
 
 # Allow network access to the application. Without 
 # it, the container will not run in the strict environment
@@ -22,4 +22,4 @@ RUN adduser -u 1000 -G nonroot -H -D nonroot
 USER nonroot:nonroot
 
 # Entrypoint
-ENTRYPOINT ["/server"]
+# ENTRYPOINT ["/server"]
