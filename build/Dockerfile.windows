@@ -1,0 +1,3 @@
+FROM mcr.microsoft.com/windows/nanoserver:ltex2019
+COPY server.exe /server.exe
+ENTRYPOINT ["/server.exe"]
