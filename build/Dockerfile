@@ -8,6 +8,8 @@ ARG GO_VERSION=1.21
 # to compile the source code
 FROM golang:${GO_VERSION} AS build-stage
 
+# output the target platform
+RUN echo ${TARGETPLATFORM}
 # How to use?
 # see description in https://hub.docker.com/_/golang
 WORKDIR /usr/src/app

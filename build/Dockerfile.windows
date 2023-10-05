@@ -1,0 +1,35 @@
+# Get the golang version passed from the caller as it is derived
+# out of the go,mod file in the repository. The default is 
+# golang version 1.21
+ARG GO_VERSION=1.21
+
+# Build the application from source.
+# use the official golang docker image
+# to compile the source code
+FROM golang:${GO_VERSION} AS build-stage
+
+# How to use?
+# see description in https://hub.docker.com/_/golang
+RUN MKDIR /usr/src/app
+WORKDIR /usr/src/app
+RUN echo ${TARGETPLATFORM}
+
+# copy the dependency files and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+RUN go mod verify
+
+# copy the rest of the source code
+# and compile for linux. Put the result
+# into the /usr/local/bin standard directory
+COPY . .
+ENV CGO_ENABLED=0
+RUN go build cmd/server.go
+
+FROM mcr.microsoft.com/windows/nanoserver:ltsc2019 AS build-release-stage
+
+# copy just the binary into the deployment image
+COPY --from=build-stage /usr/src/app/server.exe /server.exe
+
+# Entrypoint
+ENTRYPOINT ["/server.exe"]

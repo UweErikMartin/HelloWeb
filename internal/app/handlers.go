@@ -6,16 +6,14 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-
-	"k8s.io/klog"
 )
 
 func (app *Application) Health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", "plain/text")
 	hn, _ := os.Hostname()
-	klog.Infof("Host: %s - health endpoint called from %s\n", hn, r.RemoteAddr)
-	fmt.Fprintf(w, "Host: %s - health endpoint called from %s\n", hn, r.RemoteAddr)
+	app.Logger.Printf("Host: %s(%s) - health endpoint called from %s\n", hn, runtime.GOOS, r.RemoteAddr)
+	fmt.Fprintf(w, "Host: %s(%s) - health endpoint called from %s\n", hn, runtime.GOOS, r.RemoteAddr)
 }
 
 type envelope map[string]any

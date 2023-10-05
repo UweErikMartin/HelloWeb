@@ -4,16 +4,16 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
 	prof "net/http/pprof"
-
-	"k8s.io/klog"
 )
 
 type Application struct {
-	args cmdlineArgs
+	args   cmdlineArgs
+	Logger *log.Logger
 }
 
 func (app *Application) Routes() *http.ServeMux {
@@ -25,7 +25,7 @@ func (app *Application) Routes() *http.ServeMux {
 	mux.HandleFunc(fmt.Sprintf("%smemstats", app.args.argRootPath), app.MemStats)
 	// add the profiling endpoint /debug/pprof
 	if app.args.argEnableProfiling {
-		klog.Infoln("Adding profiling Endpoint /debug/pprof/")
+		app.Logger.Println("Adding profiling Endpoint /debug/pprof/")
 		mux.HandleFunc("/debug/pprof/", prof.Index)
 	}
 
@@ -39,20 +39,20 @@ func (app *Application) GetTLSConfig() (*tls.Config, error) {
 
 	serverTLSCert, err := tls.LoadX509KeyPair(CertFilePath, KeyFilePath)
 	if err != nil {
-		klog.Errorf("cannot load TLS Certificate files %s and %s\n", CertFilePath, KeyFilePath)
+		app.Logger.Printf("cannot load TLS Certificate files %s and %s\n", CertFilePath, KeyFilePath)
 		return nil, err
 	}
 
 	caCert, err := os.ReadFile(CAFilePath)
 
 	if err != nil {
-		klog.Errorf("cannot load mTLS Certificate Authority file %s - using normal tls\n", CAFilePath)
+		app.Logger.Printf("cannot load mTLS Certificate Authority file %s - using normal tls\n", CAFilePath)
 		tlsConfig := &tls.Config{
 			Certificates: []tls.Certificate{serverTLSCert},
 		}
 		return tlsConfig, nil
 	} else {
-		klog.Infof("loaded mTLS Certificate Authority file %s - using mTLS\n", CAFilePath)
+		app.Logger.Printf("loaded mTLS Certificate Authority file %s - using mTLS\n", CAFilePath)
 		caCertPool := x509.NewCertPool()
 		caCertPool.AppendCertsFromPEM(caCert)
 		tlsConfig := &tls.Config{

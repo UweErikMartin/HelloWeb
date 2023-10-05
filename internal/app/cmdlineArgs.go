@@ -47,5 +47,6 @@ func (app *Application) GetAddrAsSring() string {
 }
 
 func (app *Application) AllowInsecureConnections() bool {
+	app.Logger.Println("AllowInsecureConnection called")
 	return app.args.argInsecurePort > 0 && app.args.argInsecurePort < 65536
 }

@@ -1,21 +1,24 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"sync"
 	"time"
 
 	app "github.com/UweErikMartin/HelloWeb/internal/app"
-
-	"k8s.io/klog"
 )
 
 func main() {
 
+	logger := log.New(os.Stdout, os.Args[0]+": ", log.Ldate|log.Ltime)
+
 	// Initialize the application and parse the commandline
 	// and environment variables
-	app := &app.Application{}
+	app := &app.Application{
+		Logger: logger,
+	}
 	app.ParseCommandlineAndEnvironment(os.Args[1:])
 
 	wg := &sync.WaitGroup{}
@@ -34,12 +37,14 @@ func main() {
 				IdleTimeout:       5 * time.Second,
 			}
 
-			klog.Infoln("Start listening on http port")
-			klog.Fatal(httpSrv.ListenAndServe())
+			app.Logger.Printf("Start listening on http://%s\n", app.GetInsecureAddrAsString())
+			if err := httpSrv.ListenAndServe(); err != nil {
+				app.Logger.Fatalln(err)
+			}
 			wg.Done()
 		}(wg)
 	} else {
-		klog.Infoln("HTTP is disabled")
+		app.Logger.Println("HTTP is disabled")
 	}
 
 	if tlsConfig, err := app.GetTLSConfig(); err == nil {
@@ -54,12 +59,12 @@ func main() {
 				WriteTimeout:      5 * time.Second,
 				IdleTimeout:       5 * time.Second,
 			}
-			klog.Infoln("Start listening on https port")
-			klog.Fatal(httpsSrv.ListenAndServeTLS("", ""))
-			wg.Done()
+			app.Logger.Printf("Start listening on https://%s\n", app.GetAddrAsSring())
+			httpsSrv.ListenAndServeTLS("", "")
 		}(wg)
+		wg.Done()
 	} else {
-		klog.Infoln("HTTPS is disabled")
+		app.Logger.Println("HTTPS is disabled")
 	}
 
 	// wait until the goroutines complete
