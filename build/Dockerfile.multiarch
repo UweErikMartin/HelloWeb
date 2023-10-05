@@ -1,35 +1,25 @@
 ARG TARGETPLATFORM
 
-# Get the golang version passed from the caller as it is derived
-# out of the go,mod file in the repository. The default is 
-# golang version 1.21
-ARG GO_VERSION=1.21
+# FROM mcr.microsoft.com/windows/nanoserver:ltsc2019 
+FROM alpine:latest
 
-# Build the application from source.
-# use the official golang docker image
-# to compile the source code
-FROM golang:${GO_VERSION} AS build-stage
-
-# How to use?
-# see description in https://hub.docker.com/_/golang
-WORKDIR /
-
-# copy the dependency files and download dependencies
-COPY go.mod go.sum ./
-RUN go mod download
-RUN go mod verify
-
-# copy the rest of the source code
-# and compile for linux. Put the result
-# into the /usr/local/bin standard directory
-COPY . .
-ENV CGO_ENABLED=0
-RUN go build cmd/server.go
-
-FROM mcr.microsoft.com/windows/nanoserver:ltsc2019 AS build-release-stage
-
+RUN echo $TARGETPLATFORM
 # copy just the binary into the deployment image
-COPY --from=build-stage /server.exe /server.exe
+COPY server /server
+
+# Allow network access to the application. Without 
+# it, the container will not run in the strict environment
+# of kubernetes
+RUN apk add libcap
+RUN setcap CAP_NET_BIND_SERVICE=+eip /server
+
+# create a non-root user without home directory. We
+# don't want to run our container with root privileges
+RUN addgroup -g 1000 nonroot
+RUN adduser -u 1000 -G nonroot -H -D nonroot
+
+# run the container with the new user
+USER nonroot:nonroot
 
 # Entrypoint
-ENTRYPOINT ["/server.exe"]
+ENTRYPOINT ["/server"]
