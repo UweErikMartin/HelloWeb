@@ -47,9 +47,6 @@ jobs:
     - name: Perform Checkout
       uses: actions/checkout@v4
 
-    - name: Get Golang Version from go.mod file
-      run: sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
-
     - name: Setup Go Enviroment
       uses: actions/setup-go@v4
       with:
@@ -66,6 +63,6 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Multiarch Container Image [ windows ]
+    - name: Build and push Windows Image [ windows ]
       run: |
-        docker buildx build --push --build-arg='GO_VERSION=${{env.GO_VERSION}}' -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:ltsc-2019 -f build/Dockerfile.windows .
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:ltsc-2019 -f build/Dockerfile.windows .
