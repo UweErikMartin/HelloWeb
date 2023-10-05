@@ -1,3 +1,5 @@
+ARG TARGETPLATFORM
+
 # Get the golang version passed from the caller as it is derived
 # out of the go,mod file in the repository. The default is 
 # golang version 1.21
@@ -9,7 +11,7 @@ ARG GO_VERSION=1.21
 FROM golang:${GO_VERSION} AS build-stage
 
 # output the target platform
-RUN echo ${TARGETPLATFORM}
+RUN echo $TARGETPLATFORM
 # How to use?
 # see description in https://hub.docker.com/_/golang
 WORKDIR /usr/src/app

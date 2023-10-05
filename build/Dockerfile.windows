@@ -1,3 +1,5 @@
+ARG TARGETPLATFORM
+
 # Get the golang version passed from the caller as it is derived
 # out of the go,mod file in the repository. The default is 
 # golang version 1.21
@@ -12,7 +14,7 @@ FROM golang:${GO_VERSION} AS build-stage
 # see description in https://hub.docker.com/_/golang
 RUN MKDIR /usr/src/app
 WORKDIR /usr/src/app
-RUN echo ${TARGETPLATFORM}
+RUN echo "Running on $TARGETPLATFORM"
 
 # copy the dependency files and download dependencies
 COPY go.mod go.sum ./
