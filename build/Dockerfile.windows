@@ -12,8 +12,7 @@ FROM golang:${GO_VERSION} AS build-stage
 
 # How to use?
 # see description in https://hub.docker.com/_/golang
-RUN MKDIR /usr/src/app
-WORKDIR /usr/src/app
+WORKDIR /
 RUN echo "Running on $TARGETPLATFORM"
 
 # copy the dependency files and download dependencies
