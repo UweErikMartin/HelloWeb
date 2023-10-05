@@ -41,3 +41,23 @@ jobs:
     - name: Build and push Multiarch Container Image [ ${{ env.PLATFORMS }} ]
       run: |
         docker buildx build --push --build-arg='GO_VERSION=${{env.GO_VERSION}}' --platform=${{ env.PLATFORMS }} -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:latest -f build/Dockerfile .
+  
+  build-windows:
+    runs-on: windows-2019
+    env: 
+      DOCKER_CLI_EXPERIMENTA: ENABLED
+      CGO_ENABLED: 0
+      GOOS: windows
+
+    steps:
+    - name: Perform Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Go Environment
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: go.mod
+
+    - name: Compile Go program
+      run: |
+        go build -o server.exe cmd/server.go
