@@ -3,12 +3,8 @@ run-name: build ${{github.repository}} by ${{github.actor}}
 on: [push, pull_request]
 
 jobs: 
-  build-linux-amd64:
+  build-multiarch:
     runs-on: ubuntu-latest
-    env: 
-      CGO_ENABLED: 0
-      GOOS: linux
-      GOARCH: amd64
 
     steps:
     - name: Perform Checkout
@@ -19,39 +15,14 @@ jobs:
       with:
         go-version-file: go.mod
 
-    - name: Compile Go program
-      run: |
-        go build -o server cmd/server.go
+    - name: Compile linux/amd64
+      run:  GOOS=linux GOARCH=amd64   go build -o server-linux-amd64 cmd/server.go
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Compile linux/arm64
+      run:  GOOS=linux GOARCH=arm64   go build -o server-linux-arm64 cmd/server.go
 
-    - name: Build and push docker Image
-      run: |
-        docker buildx build --push -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
-
-  build-linux-arm64:
-    runs-on: ubuntu-latest
-    env: 
-      CGO_ENABLED: 0
-      GOOS: linux
-      GOARCH: arm64
-
-    steps:
-    - name: Perform Checkout
-      uses: actions/checkout@v4
-
-    - name: Setup Go Environment
-      uses: actions/setup-go@v4
-      with:
-        go-version-file: go.mod
-
-    - name: Compile Go program
-      run: |
-        go build -o server cmd/server.go
+    - name: Compile windows/amd64
+      run:  GOOS=windows GOARCH=amd64 go build -o server.exe cmd/server.go
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3
@@ -65,128 +36,17 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3      
 
-    - name: Build and push docker Image
-      run: |
-        docker buildx build --push --platform linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:latest -f build/Dockerfile.linux .
+    - name: Build and push Docker linux/amd64
+      run:  docker buildx build --build-arg "APPLICATION=server-linux-amd64" --push -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
 
-  build-windows:
-    runs-on: ubuntu-latest
-    env: 
-      DOCKER_CLI_EXPERIMENTAL: ENABLED
-      CGO_ENABLED: 0
-      GOOS: windows
-
-    steps:
-    - name: Perform Checkout
-      uses: actions/checkout@v4
-
-    - name: Setup Go Environment
-      uses: actions/setup-go@v4
-      with:
-        go-version-file: go.mod
-
-    - name: Compile Go program
-      run: |
-        go build -o server.exe cmd/server.go
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3      
+    - name: Build and push Docker linux/arm64
+      run:  docker buildx build --build-arg "APPLICATION=server-linux-arm64" --push -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 -f build/Dockerfile.linux .
 
     - name: Build and push windows ltsc2019 image
-      run: |
-        docker buildx build --push --platform windows/amd64 --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
+      run: docker buildx build --push --platform windows/amd64 --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
 
     - name: Build and push windows ltsc2022 image
-      run: |
-        docker buildx build --push --platform windows/amd64 --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
-
-#  build-windows-ltsc2019:
-#    runs-on: windows-2019
-#    env: 
-#      DOCKER_CLI_EXPERIMENTAL: ENABLED
-#      CGO_ENABLED: 0
-#      GOOS: windows
-
-#    steps:
-#    - name: Perform Checkout
-#      uses: actions/checkout@v4
-
-#    - name: Setup Go Environment
-#      uses: actions/setup-go@v4
-#      with:
-#        go-version-file: go.mod
-
-#    - name: Compile Go program
-#      run: |
-#        go build -o server.exe cmd/server.go
-
-#    - name: Login to Docker Hub
-#      uses: docker/login-action@v3
-#      with:
-#        username: ${{ secrets.DOCKERHUB_USERNAME }}
-#        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-#    - name: Set up Docker Buildx
-#      uses: docker/setup-buildx-action@v3      
-
-#    - name: Build and push docker Image
-#      run: |
-#        docker buildx build --push --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
-
-#  build-windows-ltsc2022:
-#    runs-on: windows-2022
-#    env: 
-#      DOCKER_CLI_EXPERIMENTAL: ENABLED
-#      CGO_ENABLED: 0
-#      GOOS: windows
-
-#    steps:
-#    - name: Perform Checkout
-#      uses: actions/checkout@v4
-
-#    - name: Setup Go Environment
-#      uses: actions/setup-go@v4
-#      with:
-#        go-version-file: go.mod
-
-#    - name: Compile Go program
-#      run: |
-#        go build -o server.exe cmd/server.go
-
-#    - name: Login to Docker Hub
-#      uses: docker/login-action@v3
-#      with:
-#        username: ${{ secrets.DOCKERHUB_USERNAME }}
-#        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-#    - name: Set up Docker Buildx
-#      uses: docker/setup-buildx-action@v3      
-
-#    - name: Build and push docker Image
-#      run: |
-#        docker buildx build --push --build-arg "WINVER=ltsc2022" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
-
-  build-multiarch-manifest:
-    runs-on: ubuntu-latest
-    needs: [build-linux-amd64,build-linux-arm64,build-windows]
-    env:
-      DOCKER_CLI_EXPERIMENTAL: ENABLED
-
-    steps:
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      run: docker buildx build --push --platform windows/amd64 --build-arg "WINVER=ltsc2022" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
 
     - name: Build Manifest
       run: |
