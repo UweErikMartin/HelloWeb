@@ -50,9 +50,9 @@ jobs:
 
     - name: Build Manifest
       run: |
-        docker manifest create ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:latest ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022
+        docker buildx imagetools create ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:latest ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022
 
-    - name: Push Manifest
-      run: |
-        docker manifest push --purge ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:latest
+#    - name: Push Manifest
+#      run: |
+#        docker manifest push --purge ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:latest
 
