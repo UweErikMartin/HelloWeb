@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 # copy just the binary into the deployment image
-COPY /server /server
+COPY ./server /server
 RUN /server
 
 # Allow network access to the application. Without 
