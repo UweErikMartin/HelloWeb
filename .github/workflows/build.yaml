@@ -69,8 +69,8 @@ jobs:
       run: |
         docker buildx build --push --platform linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:latest -f build/Dockerfile.linux .
 
-  build-windows-ltsc2019:
-    runs-on: windows-2019
+  build-windows:
+    runs-on: ubuntu-latest
     env: 
       DOCKER_CLI_EXPERIMENTAL: ENABLED
       CGO_ENABLED: 0
@@ -95,45 +95,85 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3      
-
-    - name: Build and push docker Image
-      run: |
-        docker buildx build --push --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
-
-  build-windows-ltsc2022:
-    runs-on: windows-2022
-    env: 
-      DOCKER_CLI_EXPERIMENTAL: ENABLED
-      CGO_ENABLED: 0
-      GOOS: windows
-
-    steps:
-    - name: Perform Checkout
-      uses: actions/checkout@v4
-
-    - name: Setup Go Environment
-      uses: actions/setup-go@v4
-      with:
-        go-version-file: go.mod
-
-    - name: Compile Go program
-      run: |
-        go build -o server.exe cmd/server.go
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3      
 
-    - name: Build and push docker Image
+    - name: Build and push windows ltsc2019 image
       run: |
-        docker buildx build --push --build-arg "WINVER=ltsc2022" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
+        docker buildx build --push --platform windows/amd64 --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
+
+    - name: Build and push windows ltsc2022 image
+      run: |
+        docker buildx build --push --platform windows/amd64 --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
+
+#  build-windows-ltsc2019:
+#    runs-on: windows-2019
+#    env: 
+#      DOCKER_CLI_EXPERIMENTAL: ENABLED
+#      CGO_ENABLED: 0
+#      GOOS: windows
+
+#    steps:
+#    - name: Perform Checkout
+#      uses: actions/checkout@v4
+
+#    - name: Setup Go Environment
+#      uses: actions/setup-go@v4
+#      with:
+#        go-version-file: go.mod
+
+#    - name: Compile Go program
+#      run: |
+#        go build -o server.exe cmd/server.go
+
+#    - name: Login to Docker Hub
+#      uses: docker/login-action@v3
+#      with:
+#        username: ${{ secrets.DOCKERHUB_USERNAME }}
+#        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#    - name: Set up Docker Buildx
+#      uses: docker/setup-buildx-action@v3      
+
+#    - name: Build and push docker Image
+#      run: |
+#        docker buildx build --push --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
+
+#  build-windows-ltsc2022:
+#    runs-on: windows-2022
+#    env: 
+#      DOCKER_CLI_EXPERIMENTAL: ENABLED
+#      CGO_ENABLED: 0
+#      GOOS: windows
+
+#    steps:
+#    - name: Perform Checkout
+#      uses: actions/checkout@v4
+
+#    - name: Setup Go Environment
+#      uses: actions/setup-go@v4
+#      with:
+#        go-version-file: go.mod
+
+#    - name: Compile Go program
+#      run: |
+#        go build -o server.exe cmd/server.go
+
+#    - name: Login to Docker Hub
+#      uses: docker/login-action@v3
+#      with:
+#        username: ${{ secrets.DOCKERHUB_USERNAME }}
+#        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#    - name: Set up Docker Buildx
+#      uses: docker/setup-buildx-action@v3      
+
+#    - name: Build and push docker Image
+#      run: |
+#        docker buildx build --push --build-arg "WINVER=ltsc2022" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
 
   build-multiarch-manifest:
     runs-on: ubuntu-latest
