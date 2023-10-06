@@ -1,5 +1,5 @@
-ARG APPLICATION=server
 FROM alpine:latest
+ARG APPLICATION
 
 # copy just the binary into the deployment image
 COPY ${APPLICATION} /server
