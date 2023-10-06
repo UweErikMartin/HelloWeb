@@ -59,13 +59,39 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build docker Image
+    - name: Build and push docker Image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
+        docker buildx build --push -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
 
-    - name: Push docker Image
+  build-linux-arm64:
+    runs-on: ubuntu-latest
+    env: 
+      CGO_ENABLED: 0
+      GOOS: linux
+      GOARCH: arm64
+
+    steps:
+    - name: Perform Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Go Environment
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: go.mod
+
+    - name: Compile Go program
       run: |
-        docker push ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64
+        go build -o server cmd/server.go
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push docker Image
+      run: |
+        docker buildx build --push --platform linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/helloweb:latest -f build/Dockerfile.linux .
 
   build-windows-ltsc2019:
     runs-on: windows-2019
@@ -93,13 +119,9 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build docker Image
+    - name: Build and push docker Image
       run: |
-        docker build --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
-
-    - name: Push docker Image
-      run: |
-        docker push ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019
+        docker buildx build --push --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
 
   build-windows-ltsc2022:
     runs-on: windows-2022
@@ -127,18 +149,13 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build docker Image
+    - name: Build and push docker Image
       run: |
-        docker build --build-arg "WINVER=ltsc2022" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
-
-    - name: Push docker Image
-      run: |
-        docker push ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022
+        docker buildx build --push --build-arg "WINVER=ltsc2022" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
 
   build-multiarch-manifest:
     runs-on: ubuntu-latest
-#    container: catthehacker/ubuntu:act-latest
-    needs: [build-linux-amd64,build-windows-ltsc2019,build-windows-ltsc2022]
+    needs: [build-linux-amd64,build-linux-arm64,build-windows-ltsc2019,build-windows-ltsc2022]
     env:
       DOCKER_CLI_EXPERIMENTAL: ENABLED
 
@@ -151,7 +168,7 @@ jobs:
 
     - name: Build Manifest
       run: |
-        docker manifest create ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:multiarch ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022
+        docker manifest create ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:multiarch ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022
 
     - name: Push Manifest
       run: |
