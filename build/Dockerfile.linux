@@ -2,7 +2,7 @@ FROM alpine:latest
 
 # copy just the binary into the deployment image
 COPY ./server /server
-RUN /server
+RUN ls -al /
 
 # Allow network access to the application. Without 
 # it, the container will not run in the strict environment
