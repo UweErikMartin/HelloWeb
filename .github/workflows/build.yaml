@@ -137,7 +137,7 @@ jobs:
 
   build-multiarch-manifest:
     runs-on: ubuntu-latest
-    container: catthehacker/ubuntu:act-latest
+#    container: catthehacker/ubuntu:act-latest
     needs: [build-linux-amd64,build-windows-ltsc2019,build-windows-ltsc2022]
     env:
       DOCKER_CLI_EXPERIMENTAL: ENABLED
@@ -155,5 +155,5 @@ jobs:
 
     - name: Push Manifest
       run: |
-        docker manifest --purge push ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:multiarch
+        docker manifest push --purge ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:multiarch
 
