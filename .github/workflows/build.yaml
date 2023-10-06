@@ -151,10 +151,7 @@ jobs:
 
     - name: Build Manifest
       run: |
-        docker manifest create ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:multiarch \ 
-        --amend ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 \
-        --amend ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 \
-        --amend ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022
+        docker manifest create ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:multiarch ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022
 
     - name: Push Manifest
       run: |
