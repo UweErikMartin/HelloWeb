@@ -28,13 +28,13 @@ jobs:
       uses: docker/setup-buildx-action@v3      
 
     - name: Compile linux/amd64
-      run:  GOOS=linux GOARCH=amd64   go build -o server cmd/server.go
+      run:  GOOS=linux GOARCH=amd64   go build -o /server cmd/server.go
 
     - name: Build and push Docker linux/amd64
       run:  docker buildx build --push --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
 
     - name: Compile linux/arm64
-      run:  GOOS=linux GOARCH=arm64   go build -o server cmd/server.go
+      run:  GOOS=linux GOARCH=arm64   go build -o /server cmd/server.go
 
     - name: Build and push Docker linux/arm64
       run:  docker buildx build --push --platform linux/arm64  -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 -f build/Dockerfile.linux .
