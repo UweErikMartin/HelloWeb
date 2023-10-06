@@ -137,6 +137,7 @@ jobs:
 
   build-multiarch-manifest:
     runs-on: ubuntu-latest
+    needs: [build-linux-amd64,build-windows-ltsc2019,build-windows-ltsc2022]
     env:
       DOCKER_CLI_EXPERIMENTAL: ENABLED
 
