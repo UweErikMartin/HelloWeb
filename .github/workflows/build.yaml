@@ -37,16 +37,16 @@ jobs:
       uses: docker/setup-buildx-action@v3      
 
     - name: Build and push Docker linux/amd64
-      run:  docker buildx build --build-arg "APPLICATION=server-linux-amd64" --push -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
+      run:  docker buildx build --push --platform linux/amd64 --build-arg=APPLICATION=server-linux-amd64 -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
 
     - name: Build and push Docker linux/arm64
-      run:  docker buildx build --build-arg "APPLICATION=server-linux-arm64" --push -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 -f build/Dockerfile.linux .
+      run:  docker buildx build --push --platform linux/arm64 --build-arg=APPLICATION=server-linux-arm64 --push -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 -f build/Dockerfile.linux .
 
     - name: Build and push windows ltsc2019 image
-      run: docker buildx build --push --platform windows/amd64 --build-arg "WINVER=ltsc2019" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
+      run: docker buildx build --push --platform windows/amd64 --build-arg=WINVER=ltsc2019 -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
 
     - name: Build and push windows ltsc2022 image
-      run: docker buildx build --push --platform windows/amd64 --build-arg "WINVER=ltsc2022" -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
+      run: docker buildx build --push --platform windows/amd64 --build-arg=WINVER=ltsc2022 -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
 
     - name: Build Manifest
       run: |
