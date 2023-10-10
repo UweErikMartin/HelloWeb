@@ -39,10 +39,12 @@ func (app *Application) ParseCommandlineAndEnvironment(args []string) {
 }
 
 func (app *Application) GetInsecureAddrAsString() string {
+	app.Logger.Printf("GetInsecureAddrAsString: %s:%d", app.args.argBindAddress, app.args.argPort)
 	return fmt.Sprintf("%s:%d", app.args.argInsecureBindAddress, app.args.argInsecurePort)
 }
 
 func (app *Application) GetAddrAsSring() string {
+	app.Logger.Printf("GetAddrAsString: %s:%d", app.args.argBindAddress, app.args.argPort)
 	return fmt.Sprintf("%s:%d", app.args.argBindAddress, app.args.argPort)
 }
 

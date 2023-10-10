@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
-	"sync"
+	"os/signal"
+	"syscall"
 	"time"
 
 	app "github.com/UweErikMartin/HelloWeb/internal/app"
@@ -21,52 +23,59 @@ func main() {
 	}
 	app.ParseCommandlineAndEnvironment(os.Args[1:])
 
-	wg := &sync.WaitGroup{}
+	// create the http server if insecure connections are allowed
+	httpSrv := &http.Server{
+		Addr:              app.GetInsecureAddrAsString(),
+		Handler:           app.Routes(),
+		ReadTimeout:       5 * time.Second,
+		ReadHeaderTimeout: 10 * time.Second,
+		WriteTimeout:      5 * time.Second,
+		IdleTimeout:       5 * time.Second,
+	}
 
-	// start the http server
-	if app.AllowInsecureConnections() {
-		wg.Add(1)
-		go func(wg *sync.WaitGroup) {
+	httpsSrv := &http.Server{
+		Addr:              app.GetAddrAsSring(),
+		Handler:           app.Routes(),
+		TLSConfig:         app.GetTLSConfig(),
+		ReadTimeout:       5 * time.Second,
+		ReadHeaderTimeout: 10 * time.Second,
+		WriteTimeout:      5 * time.Second,
+		IdleTimeout:       5 * time.Second,
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT)
+
+	go func() {
+		if app.AllowInsecureConnections() {
 			// create the http Endpoint
-			httpSrv := &http.Server{
-				Addr:              app.GetInsecureAddrAsString(),
-				Handler:           app.Routes(),
-				ReadTimeout:       5 * time.Second,
-				ReadHeaderTimeout: 10 * time.Second,
-				WriteTimeout:      5 * time.Second,
-				IdleTimeout:       5 * time.Second,
-			}
-
 			app.Logger.Printf("Start listening on http://%s\n", app.GetInsecureAddrAsString())
 			if err := httpSrv.ListenAndServe(); err != nil {
-				app.Logger.Fatalln(err)
+				app.Logger.Println(err)
 			}
-			wg.Done()
-		}(wg)
-	} else {
-		app.Logger.Println("HTTP is disabled")
-	}
+		} else {
+			app.Logger.Println("http is disabled")
+		}
+	}()
 
-	if tlsConfig, err := app.GetTLSConfig(); err == nil {
-		wg.Add(1)
-		go func(wg *sync.WaitGroup) {
-			httpsSrv := &http.Server{
-				Addr:              app.GetAddrAsSring(),
-				Handler:           app.Routes(),
-				TLSConfig:         tlsConfig,
-				ReadTimeout:       5 * time.Second,
-				ReadHeaderTimeout: 10 * time.Second,
-				WriteTimeout:      5 * time.Second,
-				IdleTimeout:       5 * time.Second,
-			}
-			app.Logger.Printf("Start listening on https://%s\n", app.GetAddrAsSring())
-			httpsSrv.ListenAndServeTLS("", "")
-		}(wg)
-		wg.Done()
-	} else {
-		app.Logger.Println("HTTPS is disabled")
-	}
+	go func() {
+		app.Logger.Printf("Start listening on https://%s\n", app.GetAddrAsSring())
+		if err := httpsSrv.ListenAndServeTLS("", ""); err != nil {
+			app.Logger.Println(err)
+		}
+	}()
 
-	// wait until the goroutines complete
-	wg.Wait()
+	defer func() {
+		if err := httpSrv.Shutdown(ctx); err != nil {
+			app.Logger.Println("error when shutting down the http server: ", err)
+		}
+		if err := httpsSrv.Shutdown(ctx); err != nil {
+			app.Logger.Println("error when shutting down the https server: ", err)
+		}
+	}()
+
+	sig := <-sigs
+	app.Logger.Println(sig)
+	cancel()
 }
