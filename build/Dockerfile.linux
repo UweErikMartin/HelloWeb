@@ -42,6 +42,9 @@ COPY --from=build-stage /usr/local/bin/server /server
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 
+# For debugging purposes add curl
+RUN apk add curl
+
 # create a non-root user without home directory. We
 # don't want to run our container with root privileges
 RUN addgroup -g 1000 nonroot
