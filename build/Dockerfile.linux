@@ -50,7 +50,6 @@ RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 # and disable the login
 RUN addgroup -g 1000 nonroot
 RUN adduser -u 1000 -G nonroot -H -D nonroot
-RUN passwd -l nonroot
 
 # run the container with the new user
 USER nonroot:nonroot
