@@ -47,11 +47,11 @@ RUN apk add curl
 
 # create a non-root user without home directory. We
 # don't want to run our container with root privileges
-RUN addgroup -g 1000 nonroot
-RUN adduser -u 1000 -G nonroot -H -D nonroot
+# RUN addgroup -g 1000 nonroot
+# RUN adduser -u 1000 -G nonroot -H -D nonroot
 
 # run the container with the new user
-USER nonroot:nonroot
+# USER nonroot:nonroot
 
 # Entrypoint
 ENTRYPOINT ["/server"]
