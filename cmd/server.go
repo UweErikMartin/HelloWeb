@@ -52,7 +52,7 @@ func main() {
 			// create the http Endpoint
 			app.Logger.Printf("Start listening on http://%s\n", app.GetInsecureAddrAsString())
 			if err := httpSrv.ListenAndServe(); err != nil {
-				app.Logger.Println(err)
+				app.Logger.Printf("KistenAndServe: %v", err)
 			}
 		} else {
 			app.Logger.Println("http is disabled")
@@ -62,7 +62,7 @@ func main() {
 	go func() {
 		app.Logger.Printf("Start listening on https://%s\n", app.GetAddrAsSring())
 		if err := httpsSrv.ListenAndServeTLS("", ""); err != nil {
-			app.Logger.Println(err)
+			app.Logger.Printf("ListenAndServeTLS: %v", err)
 		}
 	}()
 
@@ -76,6 +76,6 @@ func main() {
 	}()
 
 	sig := <-sigs
-	app.Logger.Println(sig)
+	app.Logger.Printf("sig %v", sig)
 	cancel()
 }
