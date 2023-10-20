@@ -47,9 +47,10 @@ RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 
 # create a non-root user without home directory. We
 # don't want to run our container with root privileges
-# and disable the login
+# and disable the login by removing the fallback shell
 RUN addgroup -g 1000 nonroot
-RUN adduser -u 1000 -G nonroot -H -D nonroot
+RUN adduser -u 1000 -G nonroot -H -D nonroot -s /bin/nologin
+RUN rm /bin/sh
 
 # run the container with the new user
 USER nonroot:nonroot
