@@ -45,15 +45,9 @@ RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 # For debugging purposes add curl
 # RUN apk add curl
 
-# create a non-root user without home directory. We
-# don't want to run our container with root privileges
-# and disable the login by removing the fallback shell
-RUN addgroup -g 1000 nonroot
-RUN adduser -u 1000 -G nonroot -H -D nonroot -s /bin/nologin
+# reomve the login shell and run the process as non-root user
 RUN rm /bin/sh
-
-# run the container with the new user
-USER nonroot:nonroot
+USER nobody
 
 # Entrypoint
 ENTRYPOINT ["/server"]
