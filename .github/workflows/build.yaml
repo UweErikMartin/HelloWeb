@@ -22,7 +22,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         push: true
-        file: build/dockerfile.linux
+        file: build/Dockerfile.linux
         tags: ${{secrets.DOCKERHUB_USERNAME}}/${{env.DOCKERHUB_IMAGENAME}}:0.0.1-linux-amd64
 
   build-multiarch:
