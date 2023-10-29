@@ -1,17 +1,27 @@
+FROM golang:${GO_VERSION} AS build-stage
+WORKDIR /usr/src/app
+# copy the dependency files and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -o /linux/amd64/server       cmd/server.go
+RUN CGO_ENABLED=0 GOOS=linux   GOARCH=arm64 go build -o /linux/arm64/server       cmd/server.go
+RUN CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o /windows/amd64/server.exe cmd/server.go
+
 # package step windows amd64
 FROM mcr.microsoft.com/windows/nanoserver:ltsc2019 as package-windows-amd64
-COPY windows/amd64/server.exe /server.exe
+COPY --from=build-stage /windows/amd64/server.exe /server.exe
 USER ContainerUser
 
 FROM alpine:latest AS package-linux-amd64
-COPY linux/amd64/server /server
+COPY --from=build-stage /linux/amd64/server /server
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 RUN rm /bin/sh
 USER nobody
 
 FROM alpine:latest AS package-linux-arm64
-COPY linux/arm64/server /server
+COPY --from=build-stage /linux/arm64/server /server
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 RUN rm /bin/sh
