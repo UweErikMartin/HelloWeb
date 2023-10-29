@@ -31,3 +31,4 @@ jobs:
         platforms: linux/amd64,linux/arm64,windows/amd64
         file: build/Dockerfile
         tags: ${{secrets.DOCKERHUB_USERNAME}}/helloweb:latest
+        provenance: false
