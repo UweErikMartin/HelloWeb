@@ -1,5 +1,43 @@
 ARG WINVER=ltsc2019
-FROM mcr.microsoft.com/windows/nanoserver:${WINVER}
-COPY server.exe /server.exe
+# Get the golang version passed from the caller as it is derived
+# out of the go,mod file in the repository. The default is 
+# golang version 1.21
+ARG GO_VERSION=1.21
+
+# Build the application from source.
+# use the official golang docker image
+# to compile the source code
+FROM golang:${GO_VERSION} AS build-stage
+
+# How to use?
+# see description in https://hub.docker.com/_/golang
+WORKDIR C:/Users/ContainerUser
+
+# copy the dependency files and download dependencies
+# COPY go.mod go.sum ./
+COPY go.mod /.
+COPY go.sum /.
+RUN go mod download
+RUN go mod verify
+
+# copy the rest of the source code
+# and compile for linux. Put the result
+# into the /usr/local/bin standard directory
+COPY . .
+RUN go build cmd/server.go
+
+# Run the tests in the container
+# FROM build-stage AS run-test-stage
+# RUN go test -v ./...
+
+# Deploy the application binary into a lean image
+# based on alpine. We don't want to ship the golang
+# environment
+FROM mcr.microsoft.com/windows/nanoserver:${WINVER} AS build-release-stage
+
+# copy just the binary into the deployment image
+COPY --from=build-stage C:/Users/ContainerUser/server.exe /server.exe
+
+# run wiht Container User privileges
 USER ContainerUser
 ENTRYPOINT ["/server.exe"]
