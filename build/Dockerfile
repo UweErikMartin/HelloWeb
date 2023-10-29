@@ -7,6 +7,7 @@ FROM alpine:latest AS package-linux-amd64
 COPY linux/amd64/server /server
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /server
+RUN chmod 555 /server
 # RUN rm /bin/sh
 # USER nobody
 
@@ -14,6 +15,7 @@ FROM alpine:latest AS package-linux-arm64
 COPY linux/arm64/server /server
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /server
+RUN chmod 555 /server
 # RUN rm /bin/sh
 # USER nobody
 
