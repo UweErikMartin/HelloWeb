@@ -1,5 +1,5 @@
 ARG GO_VERSION
-FROM golang:${GO_VERSION} AS build-stage
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS build-stage
 WORKDIR /usr/src/app
 # copy the dependency files and download dependencies
 COPY go.mod go.sum ./
