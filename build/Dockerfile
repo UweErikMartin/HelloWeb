@@ -8,6 +8,7 @@ COPY linux/amd64/server /server
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 RUN chmod 555 /server
+RUN ls -al /
 # RUN rm /bin/sh
 # USER nobody
 
@@ -16,6 +17,7 @@ COPY linux/arm64/server /server
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 RUN chmod 555 /server
+RUN ls -al /
 # RUN rm /bin/sh
 # USER nobody
 
