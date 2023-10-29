@@ -1,5 +1,0 @@
-ARG WINVER=ltsc2019
-FROM mcr.microsoft.com/windows/nanoserver:${WINVER}
-COPY server.exe /server.exe
-USER ContainerUser
-ENTRYPOINT ["/server.exe"]
