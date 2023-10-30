@@ -35,7 +35,7 @@ jobs:
 
     - name: Build and push Docker linux/amd64
       run:  |
-        docker buildx build --push --platform linux/amd64 --iid tmp.txt --build-arg=GO_VERSION=${{ env.GO_VERSION }} -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
+        docker buildx build --push --platform linux/amd64 --iidfile tmp.txt --build-arg=GO_VERSION=${{ env.GO_VERSION }} -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
         more tmp.txt
 
 
