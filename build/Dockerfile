@@ -1,4 +1,5 @@
 ARG GO_VERSION
+ARG WINVER
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS build-stage
 WORKDIR /usr/src/app
 # copy the dependency files and download dependencies
@@ -9,7 +10,7 @@ RUN CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -o /linux/amd64/server     
 RUN CGO_ENABLED=0 GOOS=linux   GOARCH=arm64 go build -o /linux/arm64/server       cmd/server.go
 RUN CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -o /windows/amd64/server.exe cmd/server.go
 # package step windows amd64 - LTSC2019
-FROM mcr.microsoft.com/windows/nanoserver:ltsc2022 as package-windows-amd64
+FROM mcr.microsoft.com/windows/nanoserver:${WINVER} as package-windows-amd64
 COPY --from=build-stage /windows/amd64/server.exe /server.exe
 USER ContainerUser
 ENTRYPOINT [ "/server.exe" ]

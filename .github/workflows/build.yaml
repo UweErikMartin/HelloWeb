@@ -22,12 +22,16 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    - name: Build and push ltsc2022
+      run: |
+        docker buildx build --push --platform windows/amd64 --build-arg=WINVER=ltsc2022 -t ${{secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile .
+        
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
-        build-args: GO_VERSION=${{env.GO_VERSION}}
+        build-args: GO_VERSION=${{env.GO_VERSION}},WINVER=ltsc2019
         platforms: linux/amd64,linux/arm64,windows/amd64
         file: build/Dockerfile
         tags: ${{secrets.DOCKERHUB_USERNAME}}/helloweb:latest
