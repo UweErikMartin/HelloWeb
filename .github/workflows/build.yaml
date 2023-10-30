@@ -36,7 +36,7 @@ jobs:
 
     - name: Build and push arm64
       run: |
-        docker buildx build --push --platform windows/arm64 --build-arg=GO_VERSION=${{env.GO_VERSION}} -t ${{secrets.DOCKERHUB_USERNAME}}/helloweb:arm64 -f build/Dockerfile .
+        docker buildx build --push --platform linux/arm64 --build-arg=GO_VERSION=${{env.GO_VERSION}} -t ${{secrets.DOCKERHUB_USERNAME}}/helloweb:arm64 -f build/Dockerfile .
 
 #    - name: Build and push
 #      uses: docker/build-push-action@v5
