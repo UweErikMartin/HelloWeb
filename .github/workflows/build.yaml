@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs: 
   build-multiarch:
     runs-on: ubuntu-latest
+    container: catthehacker/ubuntu:act-latest
 
     steps:
     - name: Perform Checkout
