@@ -24,8 +24,8 @@ jobs:
 
     - name: Build and push ltsc2022
       run: |
-        docker buildx build --push --platform windows/amd64 --build-arg=WINVER=ltsc2022 -t ${{secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile .
-        
+        docker buildx build --push --platform windows/amd64 --build-arg=WINVER=ltsc2022 --build-arg=GO_VERSION=${{env.GO_VERSION}} -t ${{secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile .
+
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
