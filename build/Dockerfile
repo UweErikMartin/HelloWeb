@@ -1,5 +1,4 @@
 ARG WINVER
-FROM golang:${GO_VERSION} AS build-stage
 # package step windows amd64 - LTSC2019
 FROM mcr.microsoft.com/windows/nanoserver:${WINVER} as package-windows-amd64
 COPY windows/amd64/server.exe /server.exe
