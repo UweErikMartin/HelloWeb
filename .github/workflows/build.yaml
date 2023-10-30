@@ -20,7 +20,7 @@ jobs:
       run: |
         go mod download
         go mod verify
-        CGO_ENABLED=0 GOOS=windows GOARCH=amd64 mkdir windows/amd64 && go build -o windows/amd64/server.exe cmd/server.go
+        CGO_ENABLED=0 GOOS=windows GOARCH=amd64 mkdir -p windows/amd64 && go build -o windows/amd64/server.exe cmd/server.go
 
     - name: Evaluate GO Version
       run: sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
