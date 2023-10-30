@@ -28,7 +28,7 @@ jobs:
         context: .
         push: true
         build-args: GO_VERSION=${{env.GO_VERSION}}
-        platforms: linux/amd64,linux/arm64,windows/amd64/10.0.17763.4974,windows/amd64/10.0.20348.2031
+        platforms: linux/amd64,linux/arm64,windows/amd64
         file: build/Dockerfile
         tags: ${{secrets.DOCKERHUB_USERNAME}}/helloweb:latest
         provenance: false
