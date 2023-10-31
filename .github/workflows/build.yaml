@@ -34,16 +34,24 @@ jobs:
       run: sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
 
     - name: Build and push Docker linux/amd64
-      run:  docker buildx build --push --platform linux/amd64 --build-arg=GO_VERSION=${{ env.GO_VERSION }} -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
+      run: |
+        docker buildx build --push --platform linux/amd64 --iidfile linux-amd64.iid --build-arg=GO_VERSION=${{ env.GO_VERSION }} -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
+        more linux-amd64.iid
 
     - name: Build and push Docker linux/arm64
-      run:  docker buildx build --push --platform linux/arm64 --build-arg=GO_VERSION=${{ env.GO_VERSION }} -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 -f build/Dockerfile.linux .
+      run: |
+        docker buildx build --push --platform linux/arm64 --iidfile linux-arm64.iid --build-arg=GO_VERSION=${{ env.GO_VERSION }} -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 -f build/Dockerfile.linux .
+        more linux-arm64.iid
 
     - name: Build and push windows ltsc2019 image
-      run: docker buildx build --push --platform windows/amd64 --build-arg=WINVER=ltsc2019 -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
+      run: |
+        docker buildx build --push --platform windows/amd64 --iidfile windows-ltsc2019.iid --build-arg=WINVER=ltsc2019 -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
+        more winodwws-ltsc2019.iid
 
     - name: Build and push windows ltsc2022 image
-      run: docker buildx build --push --platform windows/amd64 --build-arg=WINVER=ltsc2022 -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
+      run: |
+        docker buildx build --push --platform windows/amd64 --iidfile windows-ltsc2022.iid --build-arg=WINVER=ltsc2022 -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
+        more windows-ltsc2022.iid
 
     - name: Build Manifest
       run: |
