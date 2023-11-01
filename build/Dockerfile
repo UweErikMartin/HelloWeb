@@ -1,18 +1,28 @@
-ARG WINVER
+# cross-platform build step
+ARG GO_VERSION=1.21.1
+ARG WINVER=ltsc2019
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS build-stage
+WORKDIR /usr/src/app
+COPY go.mod ./
+RUN go mod download && go mod verify
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -o /linux/amd64/server       cmd/server.go
+RUN CGO_ENABLED=0 GOOS=linux   GOARCH=arm64 go build -o /linux/arm64/server       cmd/server.go
+RUN CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o /windows/amd64/server.exe cmd/server.go
 # package step windows amd64 - LTSC2019
 FROM mcr.microsoft.com/windows/nanoserver:${WINVER} as package-windows-amd64
-COPY windows/amd64/server.exe /server.exe
+COPY --from=build-stage /windows/amd64/server.exe /server.exe
 USER ContainerUser
 # package step linux amd64
 FROM alpine:latest AS package-linux-amd64
-COPY --chown=nobody:nobody linux/amd64/server /server
+COPY --from=build-stage /linux/amd64/server /server
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 RUN rm /bin/sh
 USER nobody
 # package step linux arm64
 FROM alpine:latest AS package-linux-arm64
-COPY --chown=nobody:nobody linux/arm64/server /server
+COPY --from=build-stage /linux/arm64/server /server
 RUN apk add libcap
 RUN setcap CAP_NET_BIND_SERVICE=+eip /server
 RUN rm /bin/sh
