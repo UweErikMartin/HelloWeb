@@ -2,7 +2,7 @@ name: build
 run-name: build ${{github.repository}} by ${{github.actor}}
 on: [push, pull_request]
 env:
-  IMAENAME: helloweb
+  IMAGENAME: helloweb
 
 jobs: 
   build-multiarch:
