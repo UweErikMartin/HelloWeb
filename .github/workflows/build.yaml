@@ -18,33 +18,24 @@ jobs:
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
+        username: ${{secrets.DOCKERHUB_USERNAME}}
+        password: ${{secrets.DOCKERHUB_TOKEN}}
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3      
 
-    - name: Get Golang Version from go.mod file
-      run: sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
-
     - name: Build and push Docker linux/amd64
-      run:  docker buildx build --push --platform linux/amd64 --iidfile tmp.txt --build-arg=GO_VERSION=${{ env.GO_VERSION }} -t ${{secrets.DOCKERHUB_USERNAME}}/helloweb -f build/Dockerfile.linux .
+      run:  |
+        export BUILDX_NO_DEFAULT_ATTESTATIONS=1
+        docker buildx build --push --platform linux/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --output "type=registry,name=${{github.repository}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
+        sed -En 's/.*exporting manifest\s(sha256:[0-9a-f]*)\s.*/SHA_LINUX_AMD64=\1/p' out.txt >> $GITHUB_ENV
 
-    - name: Build and push Docker linux/amd64
-      run:  docker buildx build --push --platform linux/amd64 --build-arg=GO_VERSION=${{ env.GO_VERSION }} -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 -f build/Dockerfile.linux .
+    - name: Build and push Docker linux/ard64
+      run:  |
+        export BUILDX_NO_DEFAULT_ATTESTATIONS=1
+        docker buildx build --push --platform linux/ard64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --output "type=registry,name=${{github.repository}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
+        sed -En 's/.*exporting manifest\s(sha256:[0-9a-f]*)\s.*/SHA_LINUX_ARM64=\1/p' out.txt >> $GITHUB_ENV
 
-    - name: Build and push Docker linux/arm64
-      run:  docker buildx build --push --platform linux/arm64 --build-arg=GO_VERSION=${{ env.GO_VERSION }} -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 -f build/Dockerfile.linux .
-
-    - name: Build and push windows ltsc2019 image
-      run: docker buildx build --push --platform windows/amd64 --build-arg=WINVER=ltsc2019 -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 -f build/Dockerfile.windows .
-
-    - name: Build and push windows ltsc2022 image
-      run: docker buildx build --push --platform windows/amd64 --build-arg=WINVER=ltsc2022 -t ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022 -f build/Dockerfile.windows .
-
-    - name: Build Manifest
+    - name: Build multiarch manifest
       run: |
-        docker buildx imagetools create --tag ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:latest ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-amd64 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:linux-arm64 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2019 ${{ secrets.DOCKERHUB_USERNAME}}/helloweb:ltsc2022
+        docker buildx imagetools create --tag ${{github.repository}}:${{env.VERSION}} ${{github.repository}}@${{env.SHA_LINUX_AMD64}} ${{github.repository}}@${{env.SHA_LINUX_ARM64}}
