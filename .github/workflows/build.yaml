@@ -14,7 +14,7 @@ jobs:
       run: |
         sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod >> $GITHUB_ENV
         sed -En 's/^.*=([0-9]*.[0-9]*.[0-9])$/VERSION=\1/p' VERSION >> $GITHUB_ENV
-        echo ${{github.repository}} | sed -E 's/^.*$/IMAGENAME=\L&/' >> $GITHUB_ENV
+        echo ${{github.repository}} | sed -E 's/^.*$/IMAGENAME=\L&/p' >> $GITHUB_ENV
         echo ${{env.IMAGENAME}}
 
     - name: Login to Docker Hub
