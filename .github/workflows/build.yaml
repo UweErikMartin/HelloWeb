@@ -29,25 +29,25 @@ jobs:
     - name: Build and push Docker linux/amd64
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform linux/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --cache-from type=local,dest=/tmp/docker-cache --cache-to type=local,dest=/tmp/docker-cache,mode=max --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
+        docker buildx build --push --platform linux/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --cache-from type=local,src=/tmp/docker-cache --cache-to type=local,dest=/tmp/docker-cache,mode=max --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
         sed -En 's/.*exporting manifest\s(sha256:[0-9a-f]*)\s.*/SHA_LINUX_AMD64=\1/p' out.txt >> $GITHUB_ENV
 
     - name: Build and push Docker linux/arm64
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform linux/arm64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --cache-from type=local,dest=/tmp/docker-cache --cache-to type=local,dest=/tmp/docker-cache,mode=max --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
+        docker buildx build --push --platform linux/arm64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --cache-from type=local,src=/tmp/docker-cache --cache-to type=local,dest=/tmp/docker-cache,mode=max --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
         sed -En 's/.*exporting manifest\s(sha256:[0-9a-f]*)\s.*/SHA_LINUX_ARM64=\1/p' out.txt >> $GITHUB_ENV
 
     - name: Build and push Docker windows/ltsc2019
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2019 --cache-from type=local,dest=/tmp/docker-cache --cache-to type=local,dest=/tmp/docker-cache,mode=max --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
+        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2019 --cache-from type=local,src=/tmp/docker-cache --cache-to type=local,dest=/tmp/docker-cache,mode=max --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
         sed -En 's/.*exporting manifest\s(sha256:[0-9a-f]*)\s.*/SHA_WINDOWS_LTSC2019=\1/p' out.txt >> $GITHUB_ENV
 
     - name: Build and push Docker windows/ltsc2022
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2022 --cache-from=type=local,dest=/tmp/docker-cache --cache-to type=local,dest=/tmp/docker-cache,mode=max --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
+        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2022 --cache-from=type=local,src=/tmp/docker-cache --cache-to type=local,dest=/tmp/docker-cache,mode=max --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
         sed -En 's/.*exporting manifest\s(sha256:[0-9a-f]*)\s.*/SHA_WINDOWS_LTSC2022=\1/p' out.txt >> $GITHUB_ENV
 
     - name: Build multiarch manifest
