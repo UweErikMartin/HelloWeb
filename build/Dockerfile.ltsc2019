@@ -1,0 +1,13 @@
+# cross-platform build step
+ARG GO_VERSION=1.21.1
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS build-stage
+WORKDIR /usr/src/app
+COPY go.mod ./
+RUN go mod download && go mod verify
+COPY . .
+RUN CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o /windows/amd64/server.exe cmd/server.go
+# package step windows amd64 - LTSC2019
+FROM mcr.microsoft.com/windows/nanoserver:ltsc2019
+COPY --from=build-stage /windows/amd64/server.exe /server.exe
+USER ContainerUser
+ENTRYPOINT ["/server.exe"]
