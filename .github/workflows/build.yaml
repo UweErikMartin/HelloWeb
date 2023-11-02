@@ -56,4 +56,4 @@ jobs:
 
     - name: Build and push Multiplatform Manifest
       run: |
-        docker buildx imagetools create --tag ${{env.IMAGENAME}}:${{env.VERSION}} ${{env.IMAGENAME}}@${{steps.linux-amd64.outputs.sha}} ${{env.IMAGENAME}}@${{steps.linux-arm64.outputs.sha}} ${{env.IMAGENAME}}@${{steps.windows-ltsc2019.outputs.sha}} ${{env.IMAGENAME}}@${{steps.windows-ltsc2022.outputs.sha}}
+        docker buildx imagetools create --tag ${{env.IMAGENAME}}:${{env.VERSION}} ${{env.IMAGENAME}}@${{steps.linux-amd64.outputs.sha}} ${{env.IMAGENAME}}@${{steps.linux-arm64.outputs.sha}} ${{env.IMAGENAME}}@${{steps.windows-ltsc2022.outputs.sha}}
