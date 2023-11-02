@@ -13,8 +13,8 @@ jobs:
     - name: Evaluate Build Environment variables
       run: |
         sed -En 's/^go (.*)$/GO_VERSION=\1/p' go.mod | tee -a $GITHUB_ENV
-        sed -En 's/^.*=([0-9]*.[0-9]*.[0-9]*|latest)$/VERSION=\1\n/p' VERSION | tee -a $GITHUB_ENV
-        echo '${{github.repository}}' | sed -E 's/.*/IMAGENAME=\L&\n/' | tee -a $GITHUB_ENV
+        sed -En 's/^.*=([0-9]*.[0-9]*.[0-9]*|latest)$/VERSION=\1/p' VERSION | tee -a $GITHUB_ENV
+        echo '${{github.repository}}' | sed -E 's/.*/IMAGENAME=\L&/' | tee -a $GITHUB_ENV
 
 
     - name: Login to Docker Hub
@@ -27,30 +27,33 @@ jobs:
       uses: docker/setup-buildx-action@v3      
 
     - name: Build and push Docker Image for linux/amd64
+      id: linux-amd64
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform linux/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file meta.txt -f build/Dockerfile . 2>&1 | tee out.txt
-        sed -En 's/.*exporting manifest\s(sha256:[0-9a-f]*)\s.*/SHA_LINUX_AMD64=\1/p' out.txt >> $GITHUB_ENV
-        more meta.txt
+        docker buildx build --push --platform linux/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
+        echo sha=$(jq '."containerimage.digest"' -r manifest.json) | tee -a $GITHUB_OUTPUT
 
     - name: Build and push Docker Image for linux/arm64
+      id: linux-arm64
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform linux/arm64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
-        sed -En 's/.*exporting manifest\s(sha256:[0-9a-f]*)\s.*/SHA_LINUX_ARM64=\1/p' out.txt >> $GITHUB_ENV
+        docker buildx build --push --platform linux/arm64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
+        echo sha=$(jq '."containerimage.digest"' -r manifest.json) | tee -a $GITHUB_OUTPUT
 
     - name: Build and push Docker Image for windows/ltsc2019
+      id: windows-ltsc2019
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2019 --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
-        sed -En 's/.*exporting manifest\s(sha256:[0-9a-f]*)\s.*/SHA_WINDOWS_LTSC2019=\1/p' out.txt >> $GITHUB_ENV
+        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2019 --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
+        echo sha=$(jq '."containerimage.digest"' -r manifest.json) | tee -a $GITHUB_OUTPUT
 
     - name: Build and push Docker Image for windows/ltsc2022
+      id: windows-ltsc2022
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2022 --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" -f build/Dockerfile . 2>&1 | tee out.txt
-        sed -En 's/.*exporting manifest\s(sha256:[0-9a-f]*)\s.*/SHA_WINDOWS_LTSC2022=\1/p' out.txt >> $GITHUB_ENV
+        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2022 --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
+        echo sha=$(jq '."containerimage.digest"' -r manifest.json) | tee -a $GITHUB_OUTPUT
 
     - name: Build and push Multiplatform Manifest
       run: |
-        docker buildx imagetools create --tag ${{env.IMAGENAME}}:${{env.VERSION}} ${{env.IMAGENAME}}@${{env.SHA_LINUX_AMD64}} ${{env.IMAGENAME}}@${{env.SHA_LINUX_ARM64}} ${{env.IMAGENAME}}@${{env.SHA_WINDOWS_LTSC2019}} ${{env.IMAGENAME}}@${{env.SHA_WINDOWS_LTSC2022}}
+        docker buildx imagetools create --tag ${{env.IMAGENAME}}:${{env.VERSION}} ${{env.IMAGENAME}}@${{steps.linux-amd64.outputs.sha}} ${{env.IMAGENAME}}@${{steps.linux-arm64.outputs.sha}} ${{env.IMAGENAME}}@${{steps.windows-ltsc2019.outputs.sha}} ${{env.IMAGENAME}}@${{steps.windows-ltsc2022.outputs.sha}}
