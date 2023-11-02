@@ -29,28 +29,28 @@ jobs:
       id: linux-amd64
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform linux/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --output "type=docker,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
+        docker buildx build --push --platform linux/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
         echo sha=$(jq '."containerimage.digest"' -r manifest.json) | tee -a $GITHUB_OUTPUT
 
     - name: Build and push Docker Image for linux/arm64
       id: linux-arm64
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform linux/arm64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --output "type=docker,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
+        docker buildx build --push --platform linux/arm64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
         echo sha=$(jq '."containerimage.digest"' -r manifest.json) | tee -a $GITHUB_OUTPUT
 
     - name: Build and push Docker Image for windows/ltsc2022
       id: windows-ltsc2022
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2022 --output "type=docker,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
+        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2022 --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
         echo sha=$(jq '."containerimage.digest"' -r manifest.json) | tee -a $GITHUB_OUTPUT
 
     - name: Build and push Docker Image for windows/ltsc2019
       id: windows-ltsc2019
       run:  |
         export BUILDX_NO_DEFAULT_ATTESTATIONS=1
-        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2019 --output "type=docker,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
+        docker buildx build --push --platform windows/amd64 --build-arg=GO_VERSION=${{env.GO_VERSION}} --build-arg WINVER=ltsc2019 --output "type=registry,name=${{env.IMAGENAME}},push-by-digest=true" --metadata-file manifest.json -f build/Dockerfile .
         echo sha=$(jq '."containerimage.digest"' -r manifest.json) | tee -a $GITHUB_OUTPUT
 
     - name: Build and push Multiplatform Manifest
