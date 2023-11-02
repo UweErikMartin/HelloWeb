@@ -15,7 +15,7 @@ RUN CGO_ENABLED=0 GOOS=linux   GOARCH=arm64 go build -o /linux/arm64/server     
 # Compile windows-amd64
 FROM --platform=$BUILDPLATFORM build-stage AS build-windows-amd64
 RUN CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o /windows/amd64/server.exe cmd/server.go
-# package step windows amd64 - LTSC2019
+# package step windows amd64
 FROM mcr.microsoft.com/windows/nanoserver:${WINVER} as package-windows-amd64
 COPY --from=build-windows-amd64 /windows/amd64/server.exe /server.exe
 USER ContainerUser
